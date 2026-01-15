@@ -60,7 +60,7 @@ npm run preview
 ## 项目结构
 
 ```
-robotface/
+robo-eyes/
 ├── src/
 │   ├── core/
 │   │   ├── AnimationSystem.js    # 动画系统
@@ -76,6 +76,45 @@ robotface/
 ├── vite.config.js                # Vite 配置
 └── package.json                  # 项目配置
 ```
+
+## 部署到 GitHub Pages
+
+项目已配置 GitHub Actions 自动部署。按照以下步骤操作：
+
+### 1. 启用 GitHub Pages
+
+1. 进入你的 GitHub 仓库
+2. 点击 **Settings** → **Pages**
+3. 在 **Source** 部分，选择 **GitHub Actions**
+4. 保存设置
+
+### 2. 调整 base 路径（如果需要）
+
+如果你的仓库名称不是 `robo-eyes`，需要修改 `vite.config.js` 中的 `base` 配置：
+
+```javascript
+export default defineConfig({
+  base: '/你的仓库名称/',  // 修改这里
+  // ...
+})
+```
+
+如果部署到 `username.github.io`（用户主页），base 应该设置为 `'/'`。
+
+### 3. 推送代码
+
+将代码推送到 `main` 分支后，GitHub Actions 会自动：
+- 安装依赖
+- 构建项目
+- 部署到 GitHub Pages
+
+### 4. 访问网站
+
+部署完成后，你的网站地址将是：
+- `https://你的用户名.github.io/robo-eyes/`（如果仓库名为 robo-eyes）
+- 或 `https://你的用户名.github.io/`（如果部署到用户主页）
+
+首次部署可能需要几分钟时间，之后每次推送到 main 分支都会自动更新。
 
 ## 参考
 

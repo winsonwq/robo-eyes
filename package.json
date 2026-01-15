@@ -1,5 +1,5 @@
 {
-  "name": "robotface-eyes",
+  "name": "robo-eyes",
   "version": "1.0.0",
   "description": "High-performance cute robot eyes rendering system",
   "main": "src/main.js",
