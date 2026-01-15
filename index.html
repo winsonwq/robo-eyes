@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoboEyes - Web Port</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      margin-bottom: 5px;
+      color: #00d4ff;
+    }
+    .subtitle {
+      font-size: 11px;
+      color: #666;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+    }
+    .oled-display {
+      width: 320px;
+      height: 180px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      border: 3px solid #333;
+      box-shadow: 
+        0 0 0 2px #1a1a1a,
+        0 10px 30px rgba(0,0,0,0.5),
+        inset 0 0 50px rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .oled-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 4px 4px;
+      pointer-events: none;
+    }
+    #eye-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .controls {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .control-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.15s ease;
+      background: #2a2a3a;
+      color: #aaa;
+    }
+    .btn:hover {
+      background: #3a3a4a;
+      color: #fff;
+    }
+    .btn.active {
+      background: #00d4ff;
+      color: #000;
+    }
+    .btn-mood {
+      background: #252535;
+    }
+    .btn-mood.active {
+      background: #00d4ff;
+      color: #000;
+    }
+    .btn-anim {
+      background: #1a2a1a;
+      color: #4a4;
+    }
+    .btn-anim.active {
+      background: #4a4;
+      color: #000;
+    }
+    .btn-color {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 2px solid #333;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: all 0.15s ease;
+    }
+    .btn-color:hover {
+      border-color: #00d4ff;
+      transform: scale(1.1);
+    }
+    .btn-color.active {
+      border-color: #00d4ff;
+      border-width: 3px;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+    .section-label {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #444;
+    }
+    .pos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .pos-btn {
+      width: 36px;
+      height: 28px;
+      padding: 0;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ROBO EYES</h1>
+  <div class="subtitle">FluxGarage RoboEyes Web Port</div>
+  
+  <div class="oled-display">
+    <canvas id="eye-canvas" width="320" height="180"></canvas>
+  </div>
+
+  <div class="controls">
+    <div class="section-label">Mood</div>
+    <div class="control-row">
+      <button class="btn btn-mood active" data-mood="DEFAULT">Default</button>
+      <button class="btn btn-mood" data-mood="HAPPY">Happy</button>
+      <button class="btn btn-mood" data-mood="TIRED">Tired</button>
+      <button class="btn btn-mood" data-mood="ANGRY">Angry</button>
+      <button class="btn btn-mood" data-mood="SUSPICIOUS">Sus</button>
+      <button class="btn btn-mood" data-mood="SERIOUS">Serious</button>
+      <button class="btn btn-mood" data-mood="IRRITATED">Irri</button>
+      <button class="btn btn-mood" data-mood="SAD">Sad</button>
+      <button class="btn btn-mood" data-mood="HAPPYBLUSH">Blush</button>
+    </div>
+
+    <div class="section-label">Position</div>
+    <div class="pos-grid">
+      <button class="btn pos-btn" data-pos="NW">NW</button>
+      <button class="btn pos-btn" data-pos="N">N</button>
+      <button class="btn pos-btn" data-pos="NE">NE</button>
+      <button class="btn pos-btn" data-pos="W">W</button>
+      <button class="btn pos-btn" data-pos="DEFAULT">●</button>
+      <button class="btn pos-btn" data-pos="E">E</button>
+      <button class="btn pos-btn" data-pos="SW">SW</button>
+      <button class="btn pos-btn" data-pos="S">S</button>
+      <button class="btn pos-btn" data-pos="SE">SE</button>
+    </div>
+
+    <div class="section-label">Actions</div>
+    <div class="control-row">
+      <button class="btn" id="btn-open">Open</button>
+      <button class="btn" id="btn-close">Close</button>
+      <button class="btn" id="btn-blink">Blink</button>
+    </div>
+
+    <div class="section-label">Animations</div>
+    <div class="control-row">
+      <button class="btn btn-anim" id="btn-laugh">Laugh</button>
+      <button class="btn btn-anim" id="btn-confused">Confused</button>
+      <button class="btn btn-anim" id="btn-flicker">Flicker</button>
+    </div>
+
+    <div class="section-label">Colors</div>
+    <div class="control-row">
+      <button class="btn btn-color" data-color="white" style="background: #ffffff; color: #000;" title="White">⚪</button>
+      <button class="btn btn-color" data-color="cyan" style="background: #00d4ff; color: #000;" title="Cyan">🔵</button>
+      <button class="btn btn-color" data-color="green" style="background: #00ff00; color: #000;" title="Green">🟢</button>
+      <button class="btn btn-color" data-color="red" style="background: #ff0000; color: #fff;" title="Red">🔴</button>
+      <button class="btn btn-color" data-color="yellow" style="background: #ffff00; color: #000;" title="Yellow">🟡</button>
+      <button class="btn btn-color" data-color="purple" style="background: #ff00ff; color: #fff;" title="Purple">🟣</button>
+      <button class="btn btn-color" data-color="orange" style="background: #ff8800; color: #000;" title="Orange">🟠</button>
+      <button class="btn btn-color" data-color="blue" style="background: #0088ff; color: #fff;" title="Blue">🔵</button>
+    </div>
+
+    <div class="section-label">Options</div>
+    <div class="control-row">
+      <button class="btn" id="btn-autoblink">Autoblink: ON</button>
+      <button class="btn" id="btn-idle">Idle: ON</button>
+    </div>
+  </div>
+
+  <div class="status" id="fps">60 FPS</div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
