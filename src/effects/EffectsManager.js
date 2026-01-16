@@ -57,17 +57,17 @@ export class EffectsManager {
     for (const particle of this.particles) {
       this.ctx.save();
       
-      // 增强粒子亮度和光晕
+      // Enhance particle brightness and glow
       const glowIntensity = particle.glow || 0;
       this.ctx.shadowColor = `rgb(${particle.color})`;
       this.ctx.shadowBlur = glowIntensity * particle.opacity;
       
-      // 使用更高的不透明度
+      // Use higher opacity
       this.ctx.globalAlpha = Math.min(1, particle.opacity * 1.2);
       
-      // 根据粒子类型设置颜色
+      // Set color based on particle type
       if (particle.type === 'star') {
-        // 星星使用更亮的颜色
+        // Stars use brighter color
         this.ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity})`;
         this.ctx.strokeStyle = `rgba(255, 255, 255, ${particle.opacity * 0.8})`;
         this.ctx.lineWidth = 1;
@@ -77,13 +77,13 @@ export class EffectsManager {
         this.ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity})`;
         this.drawHeart(particle.x, particle.y, particle.size);
       } else {
-        // 圆形粒子
+        // Circular particle
         this.ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity})`;
         this.ctx.beginPath();
         this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         this.ctx.fill();
         
-        // 添加内层高光
+        // Add inner highlight
         if (particle.size > 2) {
           this.ctx.globalAlpha = particle.opacity * 0.5;
           this.ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity * 0.6})`;
@@ -157,7 +157,7 @@ export class EffectsManager {
   }
 
   renderColorShiftEffect(effect) {
-    // 增强叠加层效果，使用混合模式
+    // Enhance overlay effect, use blending mode
     const alpha = effect.strength * 0.6 * (effect.life / effect.maxLife);
     this.ctx.save();
     this.ctx.globalCompositeOperation = 'screen';

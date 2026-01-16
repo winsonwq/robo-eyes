@@ -11,7 +11,7 @@ export class MoodEffects {
     this.time = 0;
     this.moodDefinitions = MoodDefinitions;
     
-    // 保留旧的配置以兼容（将被移除）
+    // Keep old config for compatibility (will be removed)
     this.moodConfigs = {
       DEFAULT: {
         bgGradient: ['#0a0a0a', '#0a0a0a'],
@@ -20,7 +20,6 @@ export class MoodEffects {
         glow: null,
         borderGlow: null,
         scanline: null,
-        ripple: null
       },
       HAPPY: {
         bgGradient: ['#2a4a2a', '#0f2a0f'],
@@ -40,7 +39,6 @@ export class MoodEffects {
           intensity: 0.6
         },
         scanline: null,
-        ripple: null
       },
       TIRED: {
         bgGradient: ['#1a1a2a', '#0a0a15'],
@@ -57,7 +55,6 @@ export class MoodEffects {
         },
         borderGlow: null,
         scanline: null,
-        ripple: null
       },
       ANGRY: {
         bgGradient: ['#4a0a0a', '#2a0505'],
@@ -80,10 +77,6 @@ export class MoodEffects {
           color: '255, 50, 50',
           intensity: 0.6
         },
-        ripple: {
-          color: '255, 50, 50',
-          intensity: 0.5
-        }
       },
       SUSPICIOUS: {
         bgGradient: ['#3a3a1a', '#1a1a0a'],
@@ -107,7 +100,6 @@ export class MoodEffects {
           color: '255, 255, 150',
           intensity: 0.5
         },
-        ripple: null
       },
       SERIOUS: {
         bgGradient: ['#1a1a3a', '#0a0a1a'],
@@ -127,7 +119,6 @@ export class MoodEffects {
           intensity: 0.3
         },
         scanline: null,
-        ripple: null
       },
       IRRITATED: {
         bgGradient: ['#4a2a0a', '#2a1505'],
@@ -147,10 +138,6 @@ export class MoodEffects {
           intensity: 0.6
         },
         scanline: null,
-        ripple: {
-          color: '255, 180, 80',
-          intensity: 0.3
-        }
       },
       SAD: {
         bgGradient: ['#1a1a3a', '#0a0a1a'],
@@ -167,10 +154,6 @@ export class MoodEffects {
         },
         borderGlow: null,
         scanline: null,
-        ripple: {
-          color: '80, 120, 255',
-          intensity: 0.2
-        }
       },
       HAPPYBLUSH: {
         bgGradient: ['#4a2a2a', '#2a1a1a'],
@@ -190,10 +173,6 @@ export class MoodEffects {
           intensity: 0.7
         },
         scanline: null,
-        ripple: {
-          color: '255, 120, 180',
-          intensity: 0.4
-        }
       },
       FOCUSED: {
         bgGradient: ['#1a2a3a', '#0a1a2a'],
@@ -213,7 +192,6 @@ export class MoodEffects {
           intensity: 0.4
         },
         scanline: null,
-        ripple: null
       },
       EFFORT: {
         bgGradient: ['#3a2a1a', '#2a1a0a'],
@@ -233,7 +211,6 @@ export class MoodEffects {
           intensity: 0.5
         },
         scanline: null,
-        ripple: null
       },
       SURPRISED: {
         bgGradient: ['#2a3a4a', '#1a2a3a'],
@@ -253,10 +230,6 @@ export class MoodEffects {
           intensity: 0.6
         },
         scanline: null,
-        ripple: {
-          color: '150, 200, 255',
-          intensity: 0.3
-        }
       },
       EXCITED: {
         bgGradient: ['#3a4a2a', '#2a3a1a'],
@@ -276,10 +249,6 @@ export class MoodEffects {
           intensity: 0.8
         },
         scanline: null,
-        ripple: {
-          color: '255, 255, 100',
-          intensity: 0.4
-        }
       },
       DETERMINED: {
         bgGradient: ['#2a2a3a', '#1a1a2a'],
@@ -299,19 +268,18 @@ export class MoodEffects {
           intensity: 0.5
         },
         scanline: null,
-        ripple: null
       }
     };
   }
 
   setMood(mood) {
     this.currentMood = mood;
-    // 清除之前的叠加层效果
+    // Clear previous overlay effects
     this.effectsManager.clearOverlayEffects();
   }
 
   setCustomBackground(backgroundConfig) {
-    // 设置自定义背景配置
+    // Set custom background configuration
     this.customBackground = backgroundConfig;
   }
 
@@ -320,7 +288,7 @@ export class MoodEffects {
     const moodDef = this.moodDefinitions[this.currentMood] || this.moodDefinitions.DEFAULT;
     const bg = moodDef.background || {};
     
-    // 更新叠加层效果
+    // Update overlay effects
     if (bg.overlay) {
       this.updateOverlay(bg.overlay);
     }
@@ -399,7 +367,7 @@ export class MoodEffects {
   }
 
   updateOverlay(config) {
-    // 持续添加叠加层效果，确保始终有一个活跃的叠加层
+    // Continuously add overlay effects to ensure there is always an active overlay
     const existingOverlay = this.effectsManager.overlayEffects.find(
       e => e.type === config.type
     );
@@ -416,13 +384,13 @@ export class MoodEffects {
         maxLife: 1.0
       });
     } else {
-      // 刷新现有叠加层的生命值
+      // Refresh existing overlay life value
       existingOverlay.life = Math.min(existingOverlay.maxLife, existingOverlay.life + 0.2);
     }
   }
 
   renderBackground() {
-    // 优先使用自定义背景，否则使用 mood 定义
+    // Prefer custom background, otherwise use mood definition
     let bg;
     if (this.customBackground) {
       bg = this.customBackground;
@@ -431,7 +399,7 @@ export class MoodEffects {
       bg = moodDef.background || {};
     }
     
-    // 创建渐变背景
+    // Create gradient background
     const gradient = this.ctx.createLinearGradient(
       0, 0,
       0, this.height
@@ -444,25 +412,21 @@ export class MoodEffects {
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.width, this.height);
     
-    // 渲染光晕效果
+    // Render glow effect
     if (bg.glow) {
       this.renderGlow(bg.glow);
     }
     
-    // 渲染边框光效
+    // Render border glow effect
     if (bg.borderGlow) {
       this.renderBorderGlow(bg.borderGlow);
     }
     
-    // 扫描线效果
-    if (bg.scanline) {
+    // Scanline effect - render in background layer
+    if (bg.scanline && bg.scanline.intensity > 0) {
       this.renderScanline(bg.scanline);
     }
     
-    // 波纹效果
-    if (bg.ripple) {
-      this.renderRipple(bg.ripple);
-    }
   }
 
   renderGlow(config) {
@@ -507,7 +471,7 @@ export class MoodEffects {
         radius = Math.max(this.width, this.height) * 0.8 * pulse;
     }
     
-    // 多层光晕效果
+    // Multi-layer glow effect
     const layers = pattern === 'romantic' ? 3 : 2;
     for (let i = 0; i < layers; i++) {
       const layerPulse = pulse * (1 - i * 0.25);
@@ -546,10 +510,10 @@ export class MoodEffects {
     this.ctx.shadowColor = `rgb(${config.color})`;
     this.ctx.shadowBlur = 20 * pulse;
     
-    // 绘制边框
+    // Draw border
     this.ctx.strokeRect(0, 0, this.width, this.height);
     
-    // 添加内层边框光效
+    // Add inner border glow effect
     this.ctx.strokeStyle = `rgba(${config.color}, ${config.intensity * pulse * 0.5})`;
     this.ctx.lineWidth = 1;
     this.ctx.shadowBlur = 10 * pulse;
@@ -559,48 +523,63 @@ export class MoodEffects {
   }
 
   renderScanline(config) {
+    if (!config || !config.color || config.intensity === 0) {
+      return; // Don't render if no config or intensity is 0
+    }
+    
     const time = this.time * 0.001;
-    const scanlineY = (this.height * 0.3 + Math.sin(time * 2) * this.height * 0.4) % this.height;
+    
+    // Scanline animation: continuous movement from top to bottom (like CRT display)
+    // Speed can be adjusted as needed, using slower speed here to make effect more visible
+    const scanSpeed = 30; // pixels/sec
+    const scanlineY = (time * scanSpeed) % (this.height + 20) - 10;
     
     this.ctx.save();
-    this.ctx.strokeStyle = `rgba(${config.color}, ${config.intensity})`;
-    this.ctx.lineWidth = 2;
+    
+    // Use additive blending mode to make scanline more visible
+    this.ctx.globalCompositeOperation = 'lighter';
+    
+    // Enhance scanline visibility: use higher intensity and thicker lines
+    const intensity = Math.max(0.5, config.intensity); // At least 0.5 intensity to ensure visibility
+    const lineWidth = 4; // Thicker line
+    
+    // Main scanline - use brighter color
+    this.ctx.strokeStyle = `rgba(${config.color}, ${intensity})`;
+    this.ctx.lineWidth = lineWidth;
     this.ctx.shadowColor = `rgb(${config.color})`;
-    this.ctx.shadowBlur = 10;
+    this.ctx.shadowBlur = 25; // Enhance glow effect
     this.ctx.beginPath();
     this.ctx.moveTo(0, scanlineY);
     this.ctx.lineTo(this.width, scanlineY);
     this.ctx.stroke();
+    
+    // Add scanline trail effect (make movement more visible)
+    if (scanlineY > 0 && scanlineY < this.height) {
+      const trailLength = 12; // Longer trail
+      const trailAlpha = intensity * 0.5; // More visible trail
+      for (let i = 1; i <= trailLength; i++) {
+        const trailY = scanlineY - i * 2;
+        if (trailY > 0) {
+          const alpha = trailAlpha * (1 - i / trailLength);
+          this.ctx.strokeStyle = `rgba(${config.color}, ${alpha})`;
+          this.ctx.lineWidth = 2;
+          this.ctx.shadowBlur = 15 * (1 - i / trailLength);
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, trailY);
+          this.ctx.lineTo(this.width, trailY);
+          this.ctx.stroke();
+        }
+      }
+    }
+    
+    // Restore composite operation
+    this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.restore();
   }
 
-  renderRipple(config) {
-    const time = this.time * 0.001;
-    const centerX = this.width / 2;
-    const centerY = this.height / 2;
-    
-    // 创建多个波纹
-    for (let i = 0; i < 3; i++) {
-      const rippleTime = time - i * 0.5;
-      if (rippleTime < 0) continue;
-      
-      const radius = (rippleTime * 100) % (Math.max(this.width, this.height) * 0.8);
-      const alpha = config.intensity * (1 - radius / (Math.max(this.width, this.height) * 0.8));
-      
-      if (alpha > 0) {
-        this.ctx.save();
-        this.ctx.strokeStyle = `rgba(${config.color}, ${alpha})`;
-        this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        this.ctx.stroke();
-        this.ctx.restore();
-      }
-    }
-  }
 
   renderOverlay() {
-    // 叠加层效果由 EffectsManager 处理
-    // 这里可以添加额外的叠加效果
+    // Overlay effects are handled by EffectsManager
+    // Additional overlay effects can be added here
   }
 }

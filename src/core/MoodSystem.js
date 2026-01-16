@@ -1,22 +1,22 @@
 /**
- * Mood 系统 - 将 mood 定义为多个维度的组合
- * 每个 mood 由以下维度组成：
- * - 眼睛形状（shape）
- * - 左右眼大小（leftEye, rightEye）
- * - 颜色（color）
- * - 动画（animation）
- * - 背景效果（background）
- * - 位置偏移（position）
+ * Mood System - Defines moods as multi-dimensional combinations
+ * Each mood consists of the following dimensions:
+ * - Eye shape (shape)
+ * - Left/right eye size (leftEye, rightEye)
+ * - Color (color)
+ * - Animation (animation)
+ * - Background effects (background)
+ * - Position offset (position)
  */
 
 export const EyeShapes = {
-  CIRCLE: 'circle',      // 圆形
-  ELLIPSE: 'ellipse',    // 椭圆
-  HEART: 'heart',        // 爱心
-  STAR: 'star',          // 星形
-  DIAMOND: 'diamond',    // 菱形
-  SQUARE: 'square',      // 方形
-  RECTANGLE: 'rectangle' // 矩形
+  CIRCLE: 'circle',      // Circle
+  ELLIPSE: 'ellipse',    // Ellipse
+  HEART: 'heart',        // Heart
+  STAR: 'star',          // Star
+  DIAMOND: 'diamond',    // Diamond
+  SQUARE: 'square',      // Square
+  RECTANGLE: 'rectangle' // Rectangle
 };
 
 export const MoodDefinitions = {
@@ -38,7 +38,7 @@ export const MoodDefinitions = {
   },
   
   HAPPY: {
-    shape: EyeShapes.HEART,  // 开心时变成爱心形状！
+    shape: EyeShapes.HEART,  // Happy mood uses heart shape
     leftEye: { scaleX: 1.2, scaleY: 1.2 },
     rightEye: { scaleX: 1.2, scaleY: 1.2 },
     borderRadius: 1.5,
@@ -72,7 +72,7 @@ export const MoodDefinitions = {
   },
   
   ANGRY: {
-    shape: EyeShapes.DIAMOND,  // 愤怒时变成菱形，更尖锐
+    shape: EyeShapes.DIAMOND,  // Angry mood uses diamond shape, more sharp
     leftEye: { scaleX: 0.85, scaleY: 0.85 },
     rightEye: { scaleX: 0.85, scaleY: 0.85 },
     borderRadius: 0.3,
@@ -86,12 +86,11 @@ export const MoodDefinitions = {
       glow: { color: '255, 50, 50', intensity: 1.2, pattern: 'pulse' },
       borderGlow: { color: '255, 50, 50', intensity: 1.0 },
       scanline: { color: '255, 50, 50', intensity: 0.6 },
-      ripple: { color: '255, 50, 50', intensity: 0.5 }
     }
   },
   
   SURPRISED: {
-    shape: EyeShapes.CIRCLE,  // 惊讶时变成圆形
+    shape: EyeShapes.CIRCLE,  // Surprised mood uses circle shape
     leftEye: { scaleX: 1.1, scaleY: 1.2 },
     rightEye: { scaleX: 1.1, scaleY: 1.2 },
     borderRadius: 1.3,
@@ -104,12 +103,11 @@ export const MoodDefinitions = {
       overlay: { type: 'colorShift', color: '150, 200, 255', strength: 0.5 },
       glow: { color: '150, 200, 255', intensity: 0.8, pattern: 'pulse' },
       borderGlow: { color: '150, 200, 255', intensity: 0.6 },
-      ripple: { color: '150, 200, 255', intensity: 0.3 }
     }
   },
   
   EXCITED: {
-    shape: EyeShapes.STAR,  // 兴奋时变成星形！
+    shape: EyeShapes.STAR,  // Excited mood uses star shape
     leftEye: { scaleX: 1.2, scaleY: 1.1 },
     rightEye: { scaleX: 1.2, scaleY: 1.1 },
     borderRadius: 1.4,
@@ -122,7 +120,6 @@ export const MoodDefinitions = {
       overlay: { type: 'colorShift', color: '255, 255, 100', strength: 0.5 },
       glow: { color: '255, 255, 100', intensity: 1.0, pattern: 'pulse' },
       borderGlow: { color: '255, 255, 100', intensity: 0.8 },
-      ripple: { color: '255, 255, 100', intensity: 0.4 }
     }
   },
   
@@ -144,7 +141,7 @@ export const MoodDefinitions = {
   },
   
   EFFORT: {
-    shape: EyeShapes.RECTANGLE,  // 使劲时变成矩形，更硬朗
+    shape: EyeShapes.RECTANGLE,  // Effort mood uses rectangle shape, more rigid
     leftEye: { scaleX: 0.85, scaleY: 0.5 },
     rightEye: { scaleX: 0.85, scaleY: 0.5 },
     borderRadius: 0.3,
@@ -173,7 +170,6 @@ export const MoodDefinitions = {
       gradient: ['#1a1a3a', '#0a0a1a'],
       overlay: { type: 'colorShift', color: '80, 120, 255', strength: 0.7 },
       glow: { color: '80, 120, 255', intensity: 0.4, pattern: 'fade' },
-      ripple: { color: '80, 120, 255', intensity: 0.2 }
     }
   },
   
@@ -195,7 +191,7 @@ export const MoodDefinitions = {
   },
   
   DETERMINED: {
-    shape: EyeShapes.DIAMOND,  // 坚定时用菱形
+    shape: EyeShapes.DIAMOND,  // Determined mood uses diamond shape
     leftEye: { scaleX: 0.9, scaleY: 0.8 },
     rightEye: { scaleX: 0.9, scaleY: 0.8 },
     borderRadius: 0.5,
@@ -243,12 +239,11 @@ export const MoodDefinitions = {
       overlay: { type: 'colorShift', color: '255, 180, 80', strength: 0.6 },
       glow: { color: '255, 180, 80', intensity: 0.8, pattern: 'irregular' },
       borderGlow: { color: '255, 180, 80', intensity: 0.6 },
-      ripple: { color: '255, 180, 80', intensity: 0.3 }
     }
   },
   
   HAPPYBLUSH: {
-    shape: EyeShapes.HEART,  // 害羞时也是爱心
+    shape: EyeShapes.HEART,  // Shy mood also uses heart shape
     leftEye: { scaleX: 1.3, scaleY: 0.55 },
     rightEye: { scaleX: 1.3, scaleY: 0.55 },
     borderRadius: 1.5,
@@ -261,7 +256,6 @@ export const MoodDefinitions = {
       overlay: { type: 'colorShift', color: '255, 120, 180', strength: 0.6 },
       glow: { color: '255, 120, 180', intensity: 0.9, pattern: 'romantic' },
       borderGlow: { color: '255, 120, 180', intensity: 0.7 },
-      ripple: { color: '255, 120, 180', intensity: 0.4 }
     }
   }
 };

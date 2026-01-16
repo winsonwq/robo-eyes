@@ -20,7 +20,7 @@ class RoboEyesApp {
     this.fpsCounter = this.initFPSCounter();
     this.lastFrameTime = performance.now();
 
-    // 初始化控制面板
+    // Initialize control panel
     this.controlPanel = new ControlPanel(this.eyeController, this.moodEffects);
 
     this.setupEventListeners();
@@ -30,7 +30,7 @@ class RoboEyesApp {
     this.moodEffects.setMood('DEFAULT');
     this.eyeController.open();
     
-    // 加载默认预设
+    // Load default preset
     this.controlPanel.loadMoodPreset('DEFAULT');
 
     this.animations.start();
@@ -57,23 +57,37 @@ class RoboEyesApp {
 
   setupEventListeners() {
     document.querySelectorAll('.btn-mood').forEach(btn => {
-      // Mood 按钮现在由 ControlPanel 处理
-      // 这里保留以兼容，但实际由 ControlPanel 处理
+      // Mood buttons are now handled by ControlPanel
+      // Kept here for compatibility, but actually handled by ControlPanel
     });
 
     document.querySelectorAll('.pos-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const pos = e.target.dataset.pos;
         this.eyeController.setPosition(pos);
+        // Visual feedback: highlight selected position button
+        document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
       });
     });
 
-    document.getElementById('btn-open').addEventListener('click', () => {
+    const openBtn = document.getElementById('btn-open');
+    const closeBtn = document.getElementById('btn-close');
+    
+    openBtn.addEventListener('click', () => {
       this.eyeController.open();
+      // Visual feedback: button highlight
+      openBtn.classList.add('active');
+      closeBtn.classList.remove('active');
+      setTimeout(() => openBtn.classList.remove('active'), 300);
     });
 
-    document.getElementById('btn-close').addEventListener('click', () => {
+    closeBtn.addEventListener('click', () => {
       this.eyeController.close();
+      // Visual feedback: button highlight
+      closeBtn.classList.add('active');
+      openBtn.classList.remove('active');
+      setTimeout(() => closeBtn.classList.remove('active'), 300);
     });
 
     document.getElementById('btn-blink').addEventListener('click', () => {
@@ -141,7 +155,7 @@ class RoboEyesApp {
       idleBtn.textContent = `Idle: ${this.idleEnabled ? 'ON' : 'OFF'}`;
     });
 
-    // 颜色选择
+    // Color selection
     const colorMap = {
       white: '#ffffff',
       cyan: '#00d4ff',
@@ -158,17 +172,17 @@ class RoboEyesApp {
         const colorName = e.target.dataset.color;
         const color = colorMap[colorName];
         if (color) {
-          // 移除所有 active 状态
+          // Remove all active states
           document.querySelectorAll('.btn-color').forEach(b => b.classList.remove('active'));
-          // 添加当前按钮的 active 状态
+          // Add active state to current button
           e.target.classList.add('active');
-          // 设置眼睛颜色
+          // Set eye color
           this.eyeController.setEyeColor(color);
         }
       });
     });
 
-    // 默认选中白色
+    // Default to white
     document.querySelector('.btn-color[data-color="white"]')?.classList.add('active');
   }
 
@@ -190,30 +204,30 @@ class RoboEyesApp {
         this.moodEffects.update(delta);
         this.effectsManager.update(delta);
         
-        // Thinking 和 Speaking 动画效果由 renderAnimationEffects 处理
+        // Thinking and Speaking animation effects are handled by renderAnimationEffects
       }
     });
 
     this.animations.add('renderComplete', {
       active: true,
       update: () => {
-        // 完整的渲染流程，确保正确的顺序
+        // Complete rendering pipeline, ensuring correct order
         this.renderComplete();
       }
     });
   }
 
   renderComplete() {
-    // 1. 先渲染背景和光晕（最底层）
+    // 1. Render background and glow first (bottom layer)
     this.moodEffects.renderBackground();
     
-    // 2. 渲染眼睛
+    // 2. Render eyes
     this.eyeController.render();
     
-    // 3. 最后渲染粒子效果（最上层）
+    // 3. Render particle effects last (top layer)
     this.effectsManager.render();
     
-    // 4. 渲染 thinking 和 speaking 的特殊效果
+    // 4. Render special effects for thinking and speaking
     this.renderAnimationEffects();
   }
 
@@ -224,7 +238,7 @@ class RoboEyesApp {
     const centerY = this.canvas.height / 2;
     const time = Date.now() * 0.001;
     
-    // Thinking: 渲染思考光晕（简化版，无粒子）
+    // Thinking: render thinking glow (simplified version, no particles)
     if (this.eyeController.animThinking) {
       ctx.save();
       const pulse = 0.5 + Math.sin(time * 2) * 0.3;
@@ -239,17 +253,17 @@ class RoboEyesApp {
       ctx.restore();
     }
     
-    // Speaking: 慢速的波纹扩散效果（广播效果）
+    // Speaking: slow ripple diffusion effect (broadcast effect)
     if (this.eyeController.animSpeaking) {
       ctx.save();
-      // 更慢的速度，更温和的波纹
-      const slowTime = time * 0.5; // 速度减半
+      // Slower speed, gentler ripples
+      const slowTime = time * 0.5; // Half speed
       for (let i = 0; i < 3; i++) {
-        const rippleTime = slowTime - i * 0.6; // 间隔更大
+        const rippleTime = slowTime - i * 0.6; // Larger interval
         if (rippleTime < 0) continue;
         
-        const radius = (rippleTime * 40) % 90; // 更慢的扩散速度
-        const alpha = 0.25 * (1 - radius / 90); // 更柔和的透明度
+        const radius = (rippleTime * 40) % 90; // Slower diffusion speed
+        const alpha = 0.25 * (1 - radius / 90); // Softer transparency
         
         if (alpha > 0) {
           ctx.strokeStyle = `rgba(100, 255, 200, ${alpha})`;

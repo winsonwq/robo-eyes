@@ -25,6 +25,8 @@ export class EyeRenderer {
     this.blinkProgress = 0;
     this.isBlinking = false;
     this.isClosed = false;
+    this.closingProgress = 0; // 关闭动画进度 (0-1)
+    this.openingProgress = 1; // 打开动画进度 (0-1)
     this.animLaughY = 0;
     this.animConfusedX = 0;
     this.animFlicker = 0;
@@ -33,9 +35,9 @@ export class EyeRenderer {
     this.thinkingOffset = 0;
     this.speakingPhase = 0;
     this.speakingScale = 1;
-    this.curiosityEnabled = true;
+    this.curiosityEnabled = false; // Default off to avoid eye asymmetry issues
     this.moodDefinitions = MoodDefinitions;
-    this.customConfig = null; // 自定义配置
+    this.customConfig = null; // Custom configuration
 
     // 保留旧的 moods 定义以兼容（将被移除）
     this.moods = {
@@ -48,117 +50,141 @@ export class EyeRenderer {
         brightness: 1.0
       },
       HAPPY: { 
-        eyeScaleY: 0.65,      // 更扁（从0.75降到0.65）
-        eyeScaleX: 1.25,      // 更宽（从1.1增到1.25）
-        borderRadiusScale: 1.4, // 更圆（从1.2增到1.4）
+        eyeScaleY: 0.65,      // Flatter (reduced from 0.75 to 0.65)
+        eyeScaleX: 1.25,      // Wider (increased from 1.1 to 1.25)
+        borderRadiusScale: 1.4, // Rounder (increased from 1.2 to 1.4)
         rotation: 0,
-        verticalOffset: -2,   // 稍微上移，显得更开心
-        brightness: 1.1       // 更亮
+        verticalOffset: -2,   // Slightly move up, appear happier
+        brightness: 1.1       // Brighter
       },
       TIRED: { 
-        eyeScaleY: 0.4,       // 很扁（从0.5降到0.4）
+        eyeScaleY: 0.4,       // Very flat (reduced from 0.5 to 0.4)
         eyeScaleX: 1.0, 
-        borderRadiusScale: 0.7, // 更不圆（从0.8降到0.7）
+        borderRadiusScale: 0.7, // Less round (reduced from 0.8 to 0.7)
         rotation: 0,
-        verticalOffset: 1,    // 稍微下移，显得疲惫
-        brightness: 0.7       // 更暗
+        verticalOffset: 1,    // Slightly move down, appear tired
+        brightness: 0.7       // Darker
       },
       ANGRY: { 
-        eyeScaleY: 0.85,      // 稍微变窄
-        eyeScaleX: 0.85,      // 更窄（从0.9降到0.85）
-        borderRadiusScale: 0.5, // 更尖锐（从0.6降到0.5）
-        rotation: -3,        // 内眼角向下倾斜，显得愤怒
+        eyeScaleY: 0.85,      // Slightly narrower
+        eyeScaleX: 0.85,      // Narrower (reduced from 0.9 to 0.85)
+        borderRadiusScale: 0.5, // Sharper (reduced from 0.6 to 0.5)
+        rotation: -3,        // Inner corner tilts down, appear angry
         verticalOffset: 0,
         brightness: 0.9
       },
       SUSPICIOUS: { 
-        eyeScaleY: 0.8,       // 稍微变扁
+        eyeScaleY: 0.8,       // Slightly flatter
         eyeScaleX: 1.0, 
-        borderRadiusScale: 0.85, // 稍微不圆
-        rotation: 2,         // 稍微倾斜
+        borderRadiusScale: 0.85, // Slightly less round
+        rotation: 2,         // Slightly tilted
         verticalOffset: -1,
         brightness: 0.95
       },
       SERIOUS: { 
-        eyeScaleY: 0.9,       // 稍微变扁
-        eyeScaleX: 0.95,      // 稍微变窄
-        borderRadiusScale: 0.85, // 稍微不圆
+        eyeScaleY: 0.9,       // Slightly flatter
+        eyeScaleX: 0.95,      // Slightly narrower
+        borderRadiusScale: 0.85, // Slightly less round
         rotation: 0,
         verticalOffset: 0,
         brightness: 0.9
       },
       IRRITATED: { 
-        eyeScaleY: 0.7,       // 更扁（从0.8降到0.7）
-        eyeScaleX: 0.9,       // 更窄（从0.95降到0.9）
-        borderRadiusScale: 0.6, // 更不圆（从0.7降到0.6）
-        rotation: -2,        // 稍微倾斜
+        eyeScaleY: 0.7,       // Flatter (reduced from 0.8 to 0.7)
+        eyeScaleX: 0.9,       // Narrower (reduced from 0.95 to 0.9)
+        borderRadiusScale: 0.6, // Less round (reduced from 0.7 to 0.6)
+        rotation: -2,        // Slightly tilted
         verticalOffset: 0,
         brightness: 0.85
       },
       SAD: { 
-        eyeScaleY: 0.6,       // 更扁（从0.7降到0.6）
+        eyeScaleY: 0.6,       // Flatter (reduced from 0.7 to 0.6)
         eyeScaleX: 1.0, 
-        borderRadiusScale: 1.2, // 更圆（从1.1增到1.2）
-        rotation: 3,         // 外眼角向下倾斜，显得悲伤
-        verticalOffset: 1,    // 稍微下移
-        brightness: 0.75      // 更暗
+        borderRadiusScale: 1.2, // Rounder (increased from 1.1 to 1.2)
+        rotation: 3,         // Outer corner tilts down, appear sad
+        verticalOffset: 1,    // Slightly move down
+        brightness: 0.75      // Darker
       },
       HAPPYBLUSH: { 
-        eyeScaleY: 0.55,      // 很扁（从0.7降到0.55）
-        eyeScaleX: 1.3,       // 很宽（从1.15增到1.3）
-        borderRadiusScale: 1.5, // 很圆（从1.3增到1.5）
+        eyeScaleY: 0.55,      // Very flat (reduced from 0.7 to 0.55)
+        eyeScaleX: 1.3,       // Very wide (increased from 1.15 to 1.3)
+        borderRadiusScale: 1.5, // Very round (increased from 1.3 to 1.5)
         rotation: 0,
-        verticalOffset: -3,   // 明显上移
-        brightness: 1.15      // 更亮
+        verticalOffset: -3,   // Significantly move up
+        brightness: 1.15      // Brighter
       },
       FOCUSED: {
-        eyeScaleY: 0.85,      // 稍微变小，更集中
-        eyeScaleX: 0.9,       // 稍微变窄，内聚
-        borderRadiusScale: 0.9, // 稍微不圆
+        eyeScaleY: 0.85,      // Slightly smaller, more focused
+        eyeScaleX: 0.9,       // Slightly narrower，内聚
+        borderRadiusScale: 0.9, // Slightly less round
         rotation: 0,
         verticalOffset: 0,
         brightness: 1.0
       },
       EFFORT: {
-        eyeScaleY: 0.5,       // 变窄，显示用力
-        eyeScaleX: 0.85,      // 更窄
-        borderRadiusScale: 0.6, // 更尖锐
-        rotation: -1,         // 稍微向下倾斜
-        verticalOffset: 1,    // 稍微下移
+        eyeScaleY: 0.5,       // Narrower, show effort
+        eyeScaleX: 0.85,      // Narrower
+        borderRadiusScale: 0.6, // Sharper
+        rotation: -1,         // Slightly tilt down
+        verticalOffset: 1,    // Slightly move down
         brightness: 0.95
       },
       SURPRISED: {
-        eyeScaleY: 1.2,       // 变大
-        eyeScaleX: 1.1,       // 更宽
-        borderRadiusScale: 1.3, // 更圆
+        eyeScaleY: 1.2,       // Larger
+        eyeScaleX: 1.1,       // Wider
+        borderRadiusScale: 1.3, // Rounder
         rotation: 0,
-        verticalOffset: -2,   // 稍微上移
+        verticalOffset: -2,   // Slightly move up
         brightness: 1.1
       },
       EXCITED: {
-        eyeScaleY: 1.1,       // 变大
-        eyeScaleX: 1.2,       // 更宽
-        borderRadiusScale: 1.4, // 很圆
+        eyeScaleY: 1.1,       // Larger
+        eyeScaleX: 1.2,       // Wider
+        borderRadiusScale: 1.4, // Very round
         rotation: 0,
-        verticalOffset: -2,   // 稍微上移
-        brightness: 1.2       // 更亮
+        verticalOffset: -2,   // Slightly move up
+        brightness: 1.2       // Brighter
       },
       DETERMINED: {
-        eyeScaleY: 0.8,       // 稍微变小
-        eyeScaleX: 0.9,       // 稍微变窄
-        borderRadiusScale: 0.7, // 更锐利
+        eyeScaleY: 0.8,       // Slightly smaller
+        eyeScaleX: 0.9,       // Slightly narrower
+        borderRadiusScale: 0.7, // Sharper
         rotation: 0,
         verticalOffset: 0,
-        brightness: 1.05      // 稍微更亮
+        brightness: 1.05      // Slightly brighter
       }
     };
     
-    // 眼睛位置偏移（原版通过移动整个眼睛位置来"看"不同方向）
-    // 偏移量相对于画布大小，让移动更明显
-    // 水平方向最大偏移约画布宽度的 12-15%，垂直方向约画布高度的 10-12%
-    this.maxOffsetX = this.width * 0.12;  // 约 38 像素（320 * 0.12）
-    this.maxOffsetY = this.height * 0.11; // 约 20 像素（180 * 0.11）
+    // Eye position offset (original version moves entire eye position to "look" in different directions)
+    // Offset relative to canvas size to make movement more visible
+    // Max horizontal offset ~12-15% of canvas width, vertical ~10-12% of canvas height
+    this.baseMaxOffsetX = this.width * 0.12;  // Base max offset X (~38 pixels)
+    this.baseMaxOffsetY = this.height * 0.11;  // Base max offset Y (~20 pixels)
     
+    // Position movement range multiplier (for controlling overall displacement size, 0-3.0)
+    this.positionRange = 1.0;
+    // Currently selected position key (for reapplying range)
+    this.currentPositionKey = 'DEFAULT';
+    
+    // Calculate actual max offset (adjusted by range)
+    this.updateMaxOffsets();
+    
+    // Update actual max offset value (based on positionRange)
+    this.updateMaxOffsets();
+    
+    // Position definitions (will be updated in updateMaxOffsets)
+    this.positions = {};
+    this.updatePositions();
+  }
+
+  updateMaxOffsets() {
+    // Calculate actual max offset based on positionRange
+    this.maxOffsetX = this.baseMaxOffsetX * this.positionRange;
+    this.maxOffsetY = this.baseMaxOffsetY * this.positionRange;
+  }
+
+  updatePositions() {
+    // Update all position definitions based on current maxOffsetX/Y
     this.positions = {
       DEFAULT: { x: 0, y: 0 },
       N: { x: 0, y: -this.maxOffsetY },
@@ -177,12 +203,12 @@ export class EyeRenderer {
   }
 
   setCustomEyeConfig(config) {
-    // 存储自定义配置
+    // Store custom configuration
     this.customConfig = config;
   }
 
   getCurrentEyeConfig(isLeft) {
-    // 如果有自定义配置，使用自定义配置；否则使用 mood 定义
+    // If custom config exists, use it; otherwise use mood definition
     if (this.customConfig) {
       const eyeConfig = isLeft ? this.customConfig.leftEye : this.customConfig.rightEye;
       return {
@@ -194,7 +220,7 @@ export class EyeRenderer {
       };
     }
     
-    // 否则使用 mood 定义
+    // Otherwise use mood definition
     const moodDef = this.moodDefinitions[this.currentMood] || this.moodDefinitions.DEFAULT;
     const eyeConfig = isLeft ? moodDef.leftEye : moodDef.rightEye;
     return {
@@ -221,9 +247,24 @@ export class EyeRenderer {
 
   setPosition(position) {
     if (typeof position === 'string') {
-      this.targetPosition = this.positions[position] || this.positions.DEFAULT;
+      this.currentPositionKey = position; // Save currently selected position key
+      const pos = this.positions[position] || this.positions.DEFAULT;
+      this.targetPosition = { ...pos };
     } else {
-      this.targetPosition = position;
+      this.currentPositionKey = null; // Clear position key (directly set coordinates)
+      this.targetPosition = { ...position };
+    }
+  }
+
+  setPositionRange(range) {
+    this.positionRange = range;
+    // Update max offset value
+    this.updateMaxOffsets();
+    // Update all position definitions
+    this.updatePositions();
+    // Re-apply currently saved position string (if any)
+    if (this.currentPositionKey) {
+      this.setPosition(this.currentPositionKey);
     }
   }
 
@@ -240,10 +281,14 @@ export class EyeRenderer {
 
   open() {
     this.isClosed = false;
+    this.openingProgress = 0; // Start opening animation
+    this.closingProgress = 0;
   }
 
   close() {
     this.isClosed = true;
+    this.closingProgress = 0; // Start closing animation
+    this.openingProgress = 0;
   }
 
   setLaugh(active) {
@@ -275,103 +320,121 @@ export class EyeRenderer {
   }
 
   render(renderBackground = false) {
-    // 如果需要渲染背景（默认模式），使用默认背景色
+    // If background rendering is needed (default mode), use default background color
     if (renderBackground) {
       this.ctx.fillStyle = this.options.bgColor;
       this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // 平滑更新眼睛位置（用于"看"不同方向）
+    // Smoothly update eye position (for "looking" in different directions)
     this.currentPosition.x += (this.targetPosition.x - this.currentPosition.x) * 0.25;
     this.currentPosition.y += (this.targetPosition.y - this.currentPosition.y) * 0.25;
 
-    // 计算两只眼睛的左边缘位置（基础位置）
+    // Calculate left edge positions of both eyes (base position)
     const leftEyeX = this.centerX - this.options.spaceBetween / 2 - this.options.eyeWidth;
     const rightEyeX = this.centerX + this.options.spaceBetween / 2;
 
-    // 绘制两只眼睛（原版通过移动整个眼睛位置来"看"不同方向）
+    // Draw both eyes (original version moves entire eye position to "look" in different directions)
     this.drawEye(leftEyeX, this.centerY, true);
     this.drawEye(rightEyeX, this.centerY, false);
   }
 
   drawEye(x, y, isLeft) {
-    // 获取当前眼睛配置（自定义或 mood 预设）
+    // Get current eye configuration (custom or mood preset)
     const config = this.getCurrentEyeConfig(isLeft);
     
     let eyeWidth = this.options.eyeWidth * config.scaleX;
     let eyeHeight = this.options.eyeHeight * config.scaleY;
     
-    // Curiosity 模式：当眼睛移动到极左或极右时，外侧眼的高度增加
+    // Curiosity mode: when eyes move to extreme left or right, outer eye height increases
     // 原版特性：setCuriosity() 开启时，外眼高度在移动到最左/最右时增加
+    // Note: this feature causes eye asymmetry, default off
+    // If enabled, ensure both eyes apply the same effect, or only enable in specific cases
     if (this.curiosityEnabled) {
-      const normalizedOffsetX = this.maxOffsetX > 0 ? this.currentPosition.x / this.maxOffsetX : 0; // 归一化到 -1 到 1
-      if (isLeft && normalizedOffsetX < -0.5) {
-        // 左眼在极左位置，增加高度（向外看时眼睛变高）
-        const curiosityFactor = Math.abs(normalizedOffsetX + 0.5) * 0.6; // 最多增加 30%
-        eyeHeight *= (1 + curiosityFactor);
-      } else if (!isLeft && normalizedOffsetX > 0.5) {
-        // 右眼在极右位置，增加高度（向外看时眼睛变高）
-        const curiosityFactor = (normalizedOffsetX - 0.5) * 0.6; // 最多增加 30%
+      const normalizedOffsetX = this.maxOffsetX > 0 ? this.currentPosition.x / this.maxOffsetX : 0; // Normalize to -1 to 1
+      const absOffsetX = Math.abs(normalizedOffsetX);
+      
+      // Only apply effect at extreme left/right, and apply same effect to both eyes to maintain symmetry
+      if (absOffsetX > 0.5) {
+        // When looking at extreme left/right, both eyes slightly increase height (maintain symmetry)
+        const curiosityFactor = (absOffsetX - 0.5) * 0.3; // Max increase 15%, same for both eyes
         eyeHeight *= (1 + curiosityFactor);
       }
     }
     
-    // 根据配置调整圆角
+    // Adjust border radius based on configuration
     let baseRadius = this.options.borderRadius * config.borderRadius;
     const radius = Math.min(baseRadius, eyeWidth / 2, eyeHeight / 2);
 
-    // 眨眼效果
+    // Update opening/closing animation progress
+    if (this.isClosed) {
+      // Closing animation: from 0 to 1, duration 300ms
+      this.closingProgress = Math.min(1, this.closingProgress + 0.05);
+      this.openingProgress = 0;
+    } else {
+      // Opening animation: from 0 to 1, duration 300ms
+      this.openingProgress = Math.min(1, this.openingProgress + 0.05);
+      this.closingProgress = 0;
+    }
+    
+    // Blink effect
     let blinkScale = 1;
     if (this.isClosed) {
-      blinkScale = Math.max(0.02, 1 - this.blinkProgress);
+      // When closing: use closing animation progress, smoother
+      const closeEase = 1 - Math.pow(1 - this.closingProgress, 3); // Easing function
+      blinkScale = Math.max(0.01, 1 - closeEase);
     } else if (this.isBlinking) {
       blinkScale = Math.max(0.1, 1 - this.blinkProgress * 0.9);
+    } else if (this.openingProgress < 1) {
+      // When opening: use opening animation progress
+      const openEase = 1 - Math.pow(1 - this.openingProgress, 2); // Easing function
+      blinkScale = Math.max(0.1, openEase);
     }
 
     eyeHeight *= blinkScale;
 
-    // Thinking 动画：眼睛左右移动
+    // Thinking animation: eyes move left and right
     if (this.animThinking) {
       this.thinkingOffset = Math.sin(Date.now() / 800) * 8;
     } else {
-      this.thinkingOffset *= 0.9; // 平滑停止
+      this.thinkingOffset *= 0.9; // Smooth stop
     }
     
-    // 眼睛位置偏移（用于"看"不同方向）
+    // Eye position offset (for "looking" in different directions)
     const moodDef = this.moodDefinitions[this.currentMood] || this.moodDefinitions.DEFAULT;
     const offsetX = this.currentPosition.x + this.animConfusedX + this.animFlicker + this.thinkingOffset;
     const offsetY = this.currentPosition.y + this.animLaughY + (moodDef.position?.y || 0);
     
-    // 左右眼同向移动（看同一方向）
+    // Both eyes move in same direction (look in same direction)
     const drawX = x + offsetX;
     const drawY = y + offsetY;
 
-    // 保存上下文状态
+    // Save context state
     this.ctx.save();
     
-    // 应用旋转（如果有）
+    // Apply rotation (if any)
     if (config.rotation) {
       this.ctx.translate(drawX + eyeWidth / 2, drawY);
       this.ctx.rotate((config.rotation * Math.PI) / 180);
       this.ctx.translate(-(drawX + eyeWidth / 2), -drawY);
     }
 
-    // 计算基础颜色和亮度
+    // Calculate base color and brightness
     const baseColor = this.options.eyeColor;
-    const brightness = moodDef.color?.brightness || 1.0; // 亮度仍从 mood 定义读取
+    const brightness = moodDef.color?.brightness || 1.0; // Brightness still read from mood definition
     
-    // 将颜色转换为 RGB 并应用亮度
+    // Convert color to RGB and apply brightness
     const rgb = this.hexToRgb(baseColor);
     const adjustedR = Math.min(255, Math.round(rgb.r * brightness));
     const adjustedG = Math.min(255, Math.round(rgb.g * brightness));
     const adjustedB = Math.min(255, Math.round(rgb.b * brightness));
     const adjustedColor = `rgb(${adjustedR}, ${adjustedG}, ${adjustedB})`;
 
-    // 绘制眼睛主体（带渐变效果）
+    // Draw eye body (with gradient effect)
     const eyeX = drawX;
     const eyeY = drawY - eyeHeight / 2;
     
-    // 创建渐变（从上到下，稍微变暗）
+    // Create gradient (from top to bottom, slightly darker)
     const gradient = this.ctx.createLinearGradient(
       eyeX, eyeY,
       eyeX, eyeY + eyeHeight
@@ -384,11 +447,11 @@ export class EyeRenderer {
     
     this.ctx.fillStyle = gradient;
     
-    // 根据形状类型绘制不同的眼睛
+    // Draw different eyes based on shape type
     const shape = config.shape || EyeShapes.ELLIPSE;
     this.drawEyeShape(shape, eyeX, eyeY, eyeWidth, eyeHeight, radius);
 
-    // 添加高光效果（眼睛上半部分的亮光）
+    // Add highlight effect (bright light on upper part of eye)
     if (eyeHeight > 5 && !this.isClosed && blinkScale > 0.3) {
       const highlightHeight = eyeHeight * 0.3;
       const highlightY = eyeY + eyeHeight * 0.15;
@@ -405,13 +468,13 @@ export class EyeRenderer {
       highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
       
       this.ctx.fillStyle = highlightGradient;
-      // 高光使用圆形，适用于所有形状
+      // Highlight uses circle, suitable for all shapes
       this.ctx.beginPath();
       this.ctx.arc(highlightX + highlightWidth / 2, highlightY + highlightHeight / 2, Math.min(highlightWidth, highlightHeight) / 2, 0, Math.PI * 2);
       this.ctx.fill();
     }
 
-    // 添加内阴影效果（增强立体感）
+    // Add inner shadow effect (enhance 3D feel)
     if (eyeHeight > 8 && !this.isClosed && blinkScale > 0.3) {
       this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
       this.ctx.lineWidth = 1;
@@ -422,11 +485,11 @@ export class EyeRenderer {
       this.ctx.stroke();
     }
 
-    // 恢复上下文状态
+    // Restore context state
     this.ctx.restore();
   }
 
-  // 辅助方法：将十六进制颜色转换为 RGB
+  // Helper method: convert hex color to RGB
   hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -471,7 +534,7 @@ export class EyeRenderer {
       case EyeShapes.ELLIPSE:
       default:
         this.drawRoundedRect(x, y, width, height, radius);
-        return; // 已经填充，直接返回
+        return; // Already filled, return directly
     }
     
     this.ctx.closePath();

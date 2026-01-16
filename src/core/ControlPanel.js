@@ -1,8 +1,8 @@
 import { MoodDefinitions, EyeShapes } from './MoodSystem.js';
 
 /**
- * 控制面板管理器
- * 管理所有维度的实时控制
+ * Control Panel Manager
+ * Manages real-time control of all dimensions
  */
 export class ControlPanel {
   constructor(eyeController, moodEffects) {
@@ -10,7 +10,7 @@ export class ControlPanel {
     this.moodEffects = moodEffects;
     this.currentMood = 'DEFAULT';
     
-    // 当前的自定义配置
+    // Current custom configuration
     this.customConfig = {
       shape: EyeShapes.ELLIPSE,
       leftEye: { scaleX: 1.0, scaleY: 1.0 },
@@ -21,8 +21,7 @@ export class ControlPanel {
         gradient: ['#0a0a0a', '#0a0a0a'],
         glow: null,
         borderGlow: null,
-        scanline: null,
-        ripple: null
+        scanline: null
       }
     };
     
@@ -30,7 +29,7 @@ export class ControlPanel {
   }
 
   setupControls() {
-    // Mood 预设按钮 - 只加载预设，不锁定控制
+    // Mood preset buttons - only load presets, don't lock controls
     document.querySelectorAll('.btn-mood').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const mood = e.target.dataset.mood;
@@ -40,14 +39,14 @@ export class ControlPanel {
       });
     });
 
-    // 眼睛形状
+    // Eye shape
     const eyeShapeSelect = document.getElementById('eye-shape');
     eyeShapeSelect.addEventListener('change', (e) => {
       this.customConfig.shape = e.target.value;
       this.applyCustomConfig();
     });
 
-    // 左眼大小
+    // Left eye size
     const leftWidthSlider = document.getElementById('left-eye-width');
     const leftHeightSlider = document.getElementById('left-eye-height');
     leftWidthSlider.addEventListener('input', (e) => {
@@ -61,7 +60,7 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 右眼大小
+    // Right eye size
     const rightWidthSlider = document.getElementById('right-eye-width');
     const rightHeightSlider = document.getElementById('right-eye-height');
     rightWidthSlider.addEventListener('input', (e) => {
@@ -75,7 +74,7 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 圆角和旋转
+    // Border radius and rotation
     const radiusSlider = document.getElementById('border-radius');
     const rotationSlider = document.getElementById('eye-rotation');
     radiusSlider.addEventListener('input', (e) => {
@@ -89,7 +88,25 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 背景颜色
+    // Position control - overall movement range
+    const posRangeSlider = document.getElementById('position-range');
+    
+    posRangeSlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      document.getElementById('pos-range-value').textContent = value.toFixed(1);
+      this.eyeController.setPositionRange(value);
+      // Re-apply current position button position (if selected)
+      const activePosBtn = document.querySelector('.pos-btn.active');
+      if (activePosBtn) {
+        const pos = activePosBtn.dataset.pos;
+        this.eyeController.setPosition(pos);
+      } else {
+        // If no button is selected, use default position
+        this.eyeController.setPosition('DEFAULT');
+      }
+    });
+
+    // Background color
     const bgColor1 = document.getElementById('bg-color-1');
     const bgColor2 = document.getElementById('bg-color-2');
     bgColor1.addEventListener('input', (e) => {
@@ -101,7 +118,7 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 光晕效果
+    // Glow effect
     const glowColor = document.getElementById('glow-color');
     const glowIntensity = document.getElementById('glow-intensity');
     const glowPattern = document.getElementById('glow-pattern');
@@ -132,7 +149,7 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 边框光效
+    // Border glow effect
     const borderColor = document.getElementById('border-color');
     const borderIntensity = document.getElementById('border-intensity');
     borderColor.addEventListener('input', (e) => {
@@ -155,7 +172,7 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 扫描线
+    // Scanline
     const scanlineColor = document.getElementById('scanline-color');
     const scanlineIntensity = document.getElementById('scanline-intensity');
     scanlineColor.addEventListener('input', (e) => {
@@ -178,35 +195,13 @@ export class ControlPanel {
       this.applyCustomConfig();
     });
 
-    // 波纹
-    const rippleColor = document.getElementById('ripple-color');
-    const rippleIntensity = document.getElementById('ripple-intensity');
-    rippleColor.addEventListener('input', (e) => {
-      if (!this.customConfig.background.ripple) {
-        this.customConfig.background.ripple = { color: '', intensity: 0 };
-      }
-      this.customConfig.background.ripple.color = this.hexToRgbString(e.target.value);
-      this.applyCustomConfig();
-    });
-    rippleIntensity.addEventListener('input', (e) => {
-      if (parseFloat(e.target.value) === 0) {
-        this.customConfig.background.ripple = null;
-      } else {
-        if (!this.customConfig.background.ripple) {
-          this.customConfig.background.ripple = { color: '255, 255, 255', intensity: 0 };
-        }
-        this.customConfig.background.ripple.intensity = parseFloat(e.target.value);
-      }
-      document.getElementById('ripple-intensity-value').textContent = e.target.value;
-      this.applyCustomConfig();
-    });
   }
 
   loadMoodPreset(moodName) {
     this.currentMood = moodName;
     const preset = MoodDefinitions[moodName] || MoodDefinitions.DEFAULT;
     
-    // 加载预设到自定义配置
+    // Load preset to custom configuration
     this.customConfig = {
       shape: preset.shape || EyeShapes.ELLIPSE,
       leftEye: { ...preset.leftEye },
@@ -218,22 +213,21 @@ export class ControlPanel {
         glow: preset.background?.glow ? { ...preset.background.glow } : null,
         borderGlow: preset.background?.borderGlow ? { ...preset.background.borderGlow } : null,
         scanline: preset.background?.scanline ? { ...preset.background.scanline } : null,
-        ripple: preset.background?.ripple ? { ...preset.background.ripple } : null
       }
     };
     
-    // 更新 UI 控件
+    // Update UI controls
     this.updateUIFromConfig();
     
-    // 应用配置
+    // Apply configuration
     this.applyCustomConfig();
   }
 
   updateUIFromConfig() {
-    // 更新形状选择器
+    // Update shape selector
     document.getElementById('eye-shape').value = this.customConfig.shape;
     
-    // 更新眼睛大小滑块
+    // Update eye size sliders
     document.getElementById('left-eye-width').value = this.customConfig.leftEye.scaleX;
     document.getElementById('left-width-value').textContent = this.customConfig.leftEye.scaleX.toFixed(2);
     document.getElementById('left-eye-height').value = this.customConfig.leftEye.scaleY;
@@ -243,17 +237,17 @@ export class ControlPanel {
     document.getElementById('right-eye-height').value = this.customConfig.rightEye.scaleY;
     document.getElementById('right-height-value').textContent = this.customConfig.rightEye.scaleY.toFixed(2);
     
-    // 更新圆角和旋转
+    // Update border radius and rotation
     document.getElementById('border-radius').value = this.customConfig.borderRadius;
     document.getElementById('radius-value').textContent = this.customConfig.borderRadius.toFixed(2);
     document.getElementById('eye-rotation').value = this.customConfig.rotation;
     document.getElementById('rotation-value').textContent = this.customConfig.rotation;
     
-    // 更新背景颜色
+    // Update background color
     document.getElementById('bg-color-1').value = this.customConfig.background.gradient[0];
     document.getElementById('bg-color-2').value = this.customConfig.background.gradient[1] || this.customConfig.background.gradient[0];
     
-    // 更新光晕
+    // Update glow
     if (this.customConfig.background.glow && this.customConfig.background.glow.color) {
       document.getElementById('glow-color').value = this.rgbStringToHex(this.customConfig.background.glow.color);
       document.getElementById('glow-intensity').value = this.customConfig.background.glow.intensity || 0;
@@ -265,7 +259,7 @@ export class ControlPanel {
       document.getElementById('glow-pattern').value = 'none';
     }
     
-    // 更新边框光效
+    // Update border glow
     if (this.customConfig.background.borderGlow && this.customConfig.background.borderGlow.color) {
       document.getElementById('border-color').value = this.rgbStringToHex(this.customConfig.background.borderGlow.color);
       document.getElementById('border-intensity').value = this.customConfig.background.borderGlow.intensity || 0;
@@ -275,7 +269,7 @@ export class ControlPanel {
       document.getElementById('border-intensity-value').textContent = '0';
     }
     
-    // 更新扫描线
+    // Update scanline
     if (this.customConfig.background.scanline && this.customConfig.background.scanline.color) {
       document.getElementById('scanline-color').value = this.rgbStringToHex(this.customConfig.background.scanline.color);
       document.getElementById('scanline-intensity').value = this.customConfig.background.scanline.intensity || 0;
@@ -285,26 +279,17 @@ export class ControlPanel {
       document.getElementById('scanline-intensity-value').textContent = '0';
     }
     
-    // 更新波纹
-    if (this.customConfig.background.ripple && this.customConfig.background.ripple.color) {
-      document.getElementById('ripple-color').value = this.rgbStringToHex(this.customConfig.background.ripple.color);
-      document.getElementById('ripple-intensity').value = this.customConfig.background.ripple.intensity || 0;
-      document.getElementById('ripple-intensity-value').textContent = (this.customConfig.background.ripple.intensity || 0).toFixed(1);
-    } else {
-      document.getElementById('ripple-intensity').value = 0;
-      document.getElementById('ripple-intensity-value').textContent = '0';
-    }
   }
 
   applyCustomConfig() {
-    // 应用眼睛配置到 EyeRenderer
-    // 这里需要通过 eyeController 来设置
-    // 我们需要扩展 EyeRenderer 来支持动态配置
+    // Apply eye configuration to EyeRenderer
+    // This needs to be set through eyeController
+    // We need to extend EyeRenderer to support dynamic configuration
     
-    // 应用背景效果到 MoodEffects
+    // Apply background effects to MoodEffects
     this.moodEffects.setCustomBackground(this.customConfig.background);
     
-    // 应用眼睛形状和大小
+    // Apply eye shape and size
     this.eyeController.setCustomEyeConfig({
       shape: this.customConfig.shape,
       leftEye: this.customConfig.leftEye,

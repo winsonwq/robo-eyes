@@ -14,13 +14,12 @@
       background: #1a1a1a;
       min-height: 100vh;
       display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
       font-family: 'Segoe UI', sans-serif;
       color: #fff;
       padding: 20px;
-      gap: 20px;
     }
     
     .preview-section {
@@ -28,31 +27,20 @@
       flex-direction: column;
       align-items: center;
       flex-shrink: 0;
+      margin-bottom: 20px;
     }
     
     .settings-section {
-      width: 400px;
-      height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 10px;
-    }
-    
-    .settings-section::-webkit-scrollbar {
-      width: 6px;
-    }
-    
-    .settings-section::-webkit-scrollbar-track {
-      background: #1a1a1a;
-    }
-    
-    .settings-section::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 3px;
-    }
-    
-    .settings-section::-webkit-scrollbar-thumb:hover {
-      background: #444;
+      width: 100%;
+      max-width: 1200px;
+      background: #1f1f1f;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      align-items: start;
     }
     h1 {
       font-size: 20px;
@@ -101,13 +89,6 @@
       height: 100%;
       display: block;
     }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: stretch;
-      width: 100%;
-    }
     .control-row {
       display: flex;
       gap: 8px;
@@ -134,6 +115,22 @@
     .btn.active {
       background: #00d4ff;
       color: #000;
+    }
+    .pos-btn.active {
+      background: #00ff88;
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+    .btn-action {
+      font-weight: 700;
+      font-size: 12px;
+      min-width: 80px;
+    }
+    .btn-action.active {
+      background: #00ff88;
+      color: #000;
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+      transform: scale(1.05);
     }
     .btn-mood {
       background: #252535;
@@ -173,8 +170,24 @@
       color: #555;
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 3px;
-      margin-top: 15px;
+      margin-bottom: 8px;
+    }
+    .section-block {
+      background: #252525;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .section-block .control-row,
+    .section-block .slider-group,
+    .section-block .pos-grid {
+      width: 100%;
+    }
+    .section-block .control-select {
+      width: 100%;
     }
     .slider-group {
       display: flex;
@@ -273,183 +286,200 @@
   </div>
 
   <div class="settings-section">
-    <div class="controls">
-    <div class="section-label">Mood Presets</div>
-    <div class="control-row">
-      <button class="btn btn-mood active" data-mood="DEFAULT">Default</button>
-      <button class="btn btn-mood" data-mood="HAPPY">Happy</button>
-      <button class="btn btn-mood" data-mood="TIRED">Tired</button>
-      <button class="btn btn-mood" data-mood="ANGRY">Angry</button>
-      <button class="btn btn-mood" data-mood="SUSPICIOUS">Sus</button>
-      <button class="btn btn-mood" data-mood="SERIOUS">Serious</button>
-      <button class="btn btn-mood" data-mood="IRRITATED">Irri</button>
-      <button class="btn btn-mood" data-mood="SAD">Sad</button>
-      <button class="btn btn-mood" data-mood="HAPPYBLUSH">Blush</button>
-      <button class="btn btn-mood" data-mood="FOCUSED">Focus</button>
-      <button class="btn btn-mood" data-mood="EFFORT">Effort</button>
-      <button class="btn btn-mood" data-mood="SURPRISED">Surprised</button>
-      <button class="btn btn-mood" data-mood="EXCITED">Excited</button>
-      <button class="btn btn-mood" data-mood="DETERMINED">Determined</button>
-    </div>
-
-    <div class="section-label">Eye Shape</div>
-    <div class="control-row">
-      <select class="control-select" id="eye-shape">
-        <option value="ellipse">Ellipse</option>
-        <option value="circle">Circle</option>
-        <option value="heart">Heart</option>
-        <option value="star">Star</option>
-        <option value="diamond">Diamond</option>
-        <option value="square">Square</option>
-        <option value="rectangle">Rectangle</option>
-      </select>
-    </div>
-
-    <div class="section-label">Eye Size</div>
-    <div class="slider-group">
-      <div class="slider-item">
-        <label>Left Eye Width: <span id="left-width-value">1.0</span></label>
-        <input type="range" id="left-eye-width" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
-      </div>
-      <div class="slider-item">
-        <label>Left Eye Height: <span id="left-height-value">1.0</span></label>
-        <input type="range" id="left-eye-height" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
-      </div>
-      <div class="slider-item">
-        <label>Right Eye Width: <span id="right-width-value">1.0</span></label>
-        <input type="range" id="right-eye-width" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
-      </div>
-      <div class="slider-item">
-        <label>Right Eye Height: <span id="right-height-value">1.0</span></label>
-        <input type="range" id="right-eye-height" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
-      </div>
-      <div class="slider-item">
-        <label>Border Radius: <span id="radius-value">1.0</span></label>
-        <input type="range" id="border-radius" min="0.1" max="2.0" step="0.05" value="1.0" class="slider">
-      </div>
-      <div class="slider-item">
-        <label>Rotation: <span id="rotation-value">0</span>°</label>
-        <input type="range" id="eye-rotation" min="-15" max="15" step="1" value="0" class="slider">
+    <div class="section-block">
+      <div class="section-label">Mood Presets</div>
+      <div class="control-row">
+        <button class="btn btn-mood active" data-mood="DEFAULT">Default</button>
+        <button class="btn btn-mood" data-mood="HAPPY">Happy</button>
+        <button class="btn btn-mood" data-mood="TIRED">Tired</button>
+        <button class="btn btn-mood" data-mood="ANGRY">Angry</button>
+        <button class="btn btn-mood" data-mood="SUSPICIOUS">Sus</button>
+        <button class="btn btn-mood" data-mood="SERIOUS">Serious</button>
+        <button class="btn btn-mood" data-mood="IRRITATED">Irri</button>
+        <button class="btn btn-mood" data-mood="SAD">Sad</button>
+        <button class="btn btn-mood" data-mood="HAPPYBLUSH">Blush</button>
+        <button class="btn btn-mood" data-mood="FOCUSED">Focus</button>
+        <button class="btn btn-mood" data-mood="EFFORT">Effort</button>
+        <button class="btn btn-mood" data-mood="SURPRISED">Surprised</button>
+        <button class="btn btn-mood" data-mood="EXCITED">Excited</button>
+        <button class="btn btn-mood" data-mood="DETERMINED">Determined</button>
       </div>
     </div>
 
-    <div class="section-label">Background</div>
-    <div class="slider-group">
-      <div class="slider-item">
-        <label>BG Color 1:</label>
-        <input type="color" id="bg-color-1" value="#0a0a0a" class="color-picker">
-      </div>
-      <div class="slider-item">
-        <label>BG Color 2:</label>
-        <input type="color" id="bg-color-2" value="#0a0a0a" class="color-picker">
-      </div>
-    </div>
-
-    <div class="section-label">Glow Effect</div>
-    <div class="slider-group">
-      <div class="slider-item">
-        <label>Glow Color:</label>
-        <input type="color" id="glow-color" value="#ffffff" class="color-picker">
-      </div>
-      <div class="slider-item">
-        <label>Glow Intensity: <span id="glow-intensity-value">0</span></label>
-        <input type="range" id="glow-intensity" min="0" max="1.5" step="0.1" value="0" class="slider">
-      </div>
-      <div class="slider-item">
-        <label>Glow Pattern:</label>
-        <select class="control-select" id="glow-pattern">
-          <option value="none">None</option>
-          <option value="radial">Radial</option>
-          <option value="pulse">Pulse</option>
-          <option value="flicker">Flicker</option>
-          <option value="stable">Stable</option>
+    <div class="section-block">
+      <div class="section-label">Eye Shape</div>
+      <div class="control-row">
+        <select class="control-select" id="eye-shape">
+          <option value="ellipse">Ellipse</option>
+          <option value="circle">Circle</option>
+          <option value="heart">Heart</option>
+          <option value="star">Star</option>
+          <option value="diamond">Diamond</option>
+          <option value="square">Square</option>
+          <option value="rectangle">Rectangle</option>
         </select>
       </div>
     </div>
 
-    <div class="section-label">Border Glow</div>
-    <div class="slider-group">
-      <div class="slider-item">
-        <label>Border Color:</label>
-        <input type="color" id="border-color" value="#ffffff" class="color-picker">
-      </div>
-      <div class="slider-item">
-        <label>Border Intensity: <span id="border-intensity-value">0</span></label>
-        <input type="range" id="border-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
-      </div>
-    </div>
-
-    <div class="section-label">Scanline</div>
-    <div class="slider-group">
-      <div class="slider-item">
-        <label>Scanline Color:</label>
-        <input type="color" id="scanline-color" value="#ffffff" class="color-picker">
-      </div>
-      <div class="slider-item">
-        <label>Scanline Intensity: <span id="scanline-intensity-value">0</span></label>
-        <input type="range" id="scanline-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
-      </div>
-    </div>
-
-    <div class="section-label">Ripple</div>
-    <div class="slider-group">
-      <div class="slider-item">
-        <label>Ripple Color:</label>
-        <input type="color" id="ripple-color" value="#ffffff" class="color-picker">
-      </div>
-      <div class="slider-item">
-        <label>Ripple Intensity: <span id="ripple-intensity-value">0</span></label>
-        <input type="range" id="ripple-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
+    <div class="section-block">
+      <div class="section-label">Eye Size</div>
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>Left Eye Width: <span id="left-width-value">1.0</span></label>
+          <input type="range" id="left-eye-width" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+        </div>
+        <div class="slider-item">
+          <label>Left Eye Height: <span id="left-height-value">1.0</span></label>
+          <input type="range" id="left-eye-height" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+        </div>
+        <div class="slider-item">
+          <label>Right Eye Width: <span id="right-width-value">1.0</span></label>
+          <input type="range" id="right-eye-width" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+        </div>
+        <div class="slider-item">
+          <label>Right Eye Height: <span id="right-height-value">1.0</span></label>
+          <input type="range" id="right-eye-height" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+        </div>
+        <div class="slider-item">
+          <label>Border Radius: <span id="radius-value">1.0</span></label>
+          <input type="range" id="border-radius" min="0.1" max="2.0" step="0.05" value="1.0" class="slider">
+        </div>
+        <div class="slider-item">
+          <label>Rotation: <span id="rotation-value">0</span>°</label>
+          <input type="range" id="eye-rotation" min="-15" max="15" step="1" value="0" class="slider">
+        </div>
       </div>
     </div>
 
-    <div class="section-label">Position</div>
-    <div class="pos-grid">
-      <button class="btn pos-btn" data-pos="NW">NW</button>
-      <button class="btn pos-btn" data-pos="N">N</button>
-      <button class="btn pos-btn" data-pos="NE">NE</button>
-      <button class="btn pos-btn" data-pos="W">W</button>
-      <button class="btn pos-btn" data-pos="DEFAULT">●</button>
-      <button class="btn pos-btn" data-pos="E">E</button>
-      <button class="btn pos-btn" data-pos="SW">SW</button>
-      <button class="btn pos-btn" data-pos="S">S</button>
-      <button class="btn pos-btn" data-pos="SE">SE</button>
+    <div class="section-block">
+      <div class="section-label">Position</div>
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>Movement Range: <span id="pos-range-value">1.0</span>x</label>
+          <input type="range" id="position-range" min="0" max="3.0" step="0.1" value="1.0" class="slider">
+        </div>
+      </div>
+      <div class="pos-grid">
+        <button class="btn pos-btn" data-pos="NW">NW</button>
+        <button class="btn pos-btn" data-pos="N">N</button>
+        <button class="btn pos-btn" data-pos="NE">NE</button>
+        <button class="btn pos-btn" data-pos="W">W</button>
+        <button class="btn pos-btn" data-pos="DEFAULT">●</button>
+        <button class="btn pos-btn" data-pos="E">E</button>
+        <button class="btn pos-btn" data-pos="SW">SW</button>
+        <button class="btn pos-btn" data-pos="S">S</button>
+        <button class="btn pos-btn" data-pos="SE">SE</button>
+      </div>
     </div>
 
-    <div class="section-label">Actions</div>
-    <div class="control-row">
-      <button class="btn" id="btn-open">Open</button>
-      <button class="btn" id="btn-close">Close</button>
-      <button class="btn" id="btn-blink">Blink</button>
+    <div class="section-block">
+      <div class="section-label">Actions</div>
+      <div class="control-row">
+        <button class="btn btn-action" id="btn-open">👁️ Open</button>
+        <button class="btn btn-action" id="btn-close">👁️‍🗨️ Close</button>
+        <button class="btn" id="btn-blink">Blink</button>
+      </div>
     </div>
 
-    <div class="section-label">Animations</div>
-    <div class="control-row">
-      <button class="btn btn-anim" id="btn-laugh">Laugh</button>
-      <button class="btn btn-anim" id="btn-confused">Confused</button>
-      <button class="btn btn-anim" id="btn-flicker">Flicker</button>
-      <button class="btn btn-anim" id="btn-thinking">Thinking</button>
-      <button class="btn btn-anim" id="btn-speaking">Speaking</button>
+    <div class="section-block">
+      <div class="section-label">Animations</div>
+      <div class="control-row">
+        <button class="btn btn-anim" id="btn-laugh">Bounce</button>
+        <button class="btn btn-anim" id="btn-confused">Shake</button>
+        <button class="btn btn-anim" id="btn-flicker">Flicker</button>
+        <button class="btn btn-anim" id="btn-thinking">Sway</button>
+        <button class="btn btn-anim" id="btn-speaking">Pulse</button>
+      </div>
     </div>
 
-    <div class="section-label">Colors</div>
-    <div class="control-row">
-      <button class="btn btn-color" data-color="white" style="background: #ffffff; color: #000;" title="White">⚪</button>
-      <button class="btn btn-color" data-color="cyan" style="background: #00d4ff; color: #000;" title="Cyan">🔵</button>
-      <button class="btn btn-color" data-color="green" style="background: #00ff00; color: #000;" title="Green">🟢</button>
-      <button class="btn btn-color" data-color="red" style="background: #ff0000; color: #fff;" title="Red">🔴</button>
-      <button class="btn btn-color" data-color="yellow" style="background: #ffff00; color: #000;" title="Yellow">🟡</button>
-      <button class="btn btn-color" data-color="purple" style="background: #ff00ff; color: #fff;" title="Purple">🟣</button>
-      <button class="btn btn-color" data-color="orange" style="background: #ff8800; color: #000;" title="Orange">🟠</button>
-      <button class="btn btn-color" data-color="blue" style="background: #0088ff; color: #fff;" title="Blue">🔵</button>
+    <div class="section-block">
+      <div class="section-label">Colors</div>
+      <div class="control-row">
+        <button class="btn btn-color" data-color="white" style="background: #ffffff; color: #000;" title="White">⚪</button>
+        <button class="btn btn-color" data-color="cyan" style="background: #00d4ff; color: #000;" title="Cyan">🔵</button>
+        <button class="btn btn-color" data-color="green" style="background: #00ff00; color: #000;" title="Green">🟢</button>
+        <button class="btn btn-color" data-color="red" style="background: #ff0000; color: #fff;" title="Red">🔴</button>
+        <button class="btn btn-color" data-color="yellow" style="background: #ffff00; color: #000;" title="Yellow">🟡</button>
+        <button class="btn btn-color" data-color="purple" style="background: #ff00ff; color: #fff;" title="Purple">🟣</button>
+        <button class="btn btn-color" data-color="orange" style="background: #ff8800; color: #000;" title="Orange">🟠</button>
+        <button class="btn btn-color" data-color="blue" style="background: #0088ff; color: #fff;" title="Blue">🔵</button>
+      </div>
     </div>
 
-    <div class="section-label">Options</div>
-    <div class="control-row">
-      <button class="btn" id="btn-autoblink">Autoblink: ON</button>
-      <button class="btn" id="btn-idle">Idle: ON</button>
+    <div class="section-block">
+      <div class="section-label">Options</div>
+      <div class="control-row">
+        <button class="btn" id="btn-autoblink">Autoblink: ON</button>
+        <button class="btn" id="btn-idle">Idle: ON</button>
+      </div>
     </div>
+
+    <div class="section-block">
+      <div class="section-label">Background</div>
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>BG Color 1:</label>
+          <input type="color" id="bg-color-1" value="#0a0a0a" class="color-picker">
+        </div>
+        <div class="slider-item">
+          <label>BG Color 2:</label>
+          <input type="color" id="bg-color-2" value="#0a0a0a" class="color-picker">
+        </div>
+      </div>
     </div>
+
+    <div class="section-block">
+      <div class="section-label">Glow Effect</div>
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>Glow Color:</label>
+          <input type="color" id="glow-color" value="#ffffff" class="color-picker">
+        </div>
+        <div class="slider-item">
+          <label>Glow Intensity: <span id="glow-intensity-value">0</span></label>
+          <input type="range" id="glow-intensity" min="0" max="1.5" step="0.1" value="0" class="slider">
+        </div>
+        <div class="slider-item">
+          <label>Glow Pattern:</label>
+          <select class="control-select" id="glow-pattern">
+            <option value="none">None</option>
+            <option value="radial">Radial</option>
+            <option value="pulse">Pulse</option>
+            <option value="flicker">Flicker</option>
+            <option value="stable">Stable</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Border Glow</div>
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>Border Color:</label>
+          <input type="color" id="border-color" value="#ffffff" class="color-picker">
+        </div>
+        <div class="slider-item">
+          <label>Border Intensity: <span id="border-intensity-value">0</span></label>
+          <input type="range" id="border-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Scanline</div>
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>Scanline Color:</label>
+          <input type="color" id="scanline-color" value="#ffffff" class="color-picker">
+        </div>
+        <div class="slider-item">
+          <label>Scanline Intensity: <span id="scanline-intensity-value">0</span></label>
+          <input type="range" id="scanline-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script type="module" src="./src/main.js"></script>

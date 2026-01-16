@@ -41,7 +41,7 @@ export class EyeController {
     this.animations.add('position', {
       active: true,
       update: () => {
-        // 平滑更新眼睛位置（用于"看"不同方向）
+        // Smoothly update eye position (for "looking" in different directions)
         this.currentPosition.x += (this.targetPosition.x - this.currentPosition.x) * 0.25;
         this.currentPosition.y += (this.targetPosition.y - this.currentPosition.y) * 0.25;
         this.renderer.currentPosition = this.currentPosition;
@@ -51,7 +51,7 @@ export class EyeController {
     this.animations.add('update', {
       active: true,
       update: () => {
-        // 只更新动画状态，不渲染
+        // Only update animation state, don't render
         this.renderer.animLaughY = this.animLaugh ? Math.sin(Date.now() / 50) * 2 : 0;
         this.renderer.animConfusedX = this.animConfused ? Math.sin(Date.now() / 100) * 3 : 0;
         this.renderer.animFlicker = this.animFlicker ? (Math.random() - 0.5) * 5 : 0;
@@ -63,7 +63,7 @@ export class EyeController {
   }
 
   render() {
-    // 不渲染背景，由 MoodEffects 处理
+    // Don't render background, handled by MoodEffects
     this.renderer.render(false);
   }
 
@@ -89,6 +89,8 @@ export class EyeController {
   }
 
   setPosition(position) {
+    this.renderer.setPosition(position);
+    // Sync to controller's targetPosition (for smooth movement)
     if (typeof position === 'string') {
       const pos = this.renderer.positions[position];
       if (pos) {
@@ -97,6 +99,10 @@ export class EyeController {
     } else {
       this.targetPosition = { ...position };
     }
+  }
+
+  setPositionRange(range) {
+    this.renderer.setPositionRange(range);
   }
 
   blink() {
