@@ -14,11 +14,45 @@
       background: #1a1a1a;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-direction: row;
+      align-items: flex-start;
       justify-content: center;
       font-family: 'Segoe UI', sans-serif;
       color: #fff;
+      padding: 20px;
+      gap: 20px;
+    }
+    
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    
+    .settings-section {
+      width: 400px;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 10px;
+    }
+    
+    .settings-section::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .settings-section::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    
+    .settings-section::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
+    
+    .settings-section::-webkit-scrollbar-thumb:hover {
+      background: #444;
     }
     h1 {
       font-size: 20px;
@@ -68,17 +102,17 @@
       display: block;
     }
     .controls {
-      margin-top: 25px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      align-items: center;
+      align-items: stretch;
+      width: 100%;
     }
     .control-row {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: flex-start;
     }
     .btn {
       padding: 8px 14px;
@@ -140,11 +174,77 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: 3px;
+      margin-top: 15px;
+    }
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 5px;
+    }
+    .slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .slider-item label {
+      font-size: 9px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+    }
+    .slider {
+      width: 100%;
+      height: 4px;
+      background: #2a2a2a;
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #00d4ff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: #00d4ff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    .color-picker {
+      width: 100%;
+      height: 28px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #1a1a1a;
+      cursor: pointer;
+    }
+    .control-select {
+      width: 100%;
+      padding: 6px 8px;
+      background: #2a2a3a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #aaa;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .control-select:hover {
+      background: #3a3a4a;
+      color: #fff;
     }
     .status {
-      margin-top: 20px;
+      margin-top: 10px;
       font-size: 11px;
       color: #444;
+      text-align: center;
     }
     .pos-grid {
       display: grid;
@@ -161,15 +261,20 @@
   </style>
 </head>
 <body>
-  <h1>ROBO EYES</h1>
-  <div class="subtitle">FluxGarage RoboEyes Web Port</div>
-  
-  <div class="oled-display">
-    <canvas id="eye-canvas" width="320" height="180"></canvas>
+  <div class="preview-section">
+    <h1>ROBO EYES</h1>
+    <div class="subtitle">FluxGarage RoboEyes Web Port</div>
+    
+    <div class="oled-display">
+      <canvas id="eye-canvas" width="320" height="180"></canvas>
+    </div>
+
+    <div class="status" id="fps">60 FPS</div>
   </div>
 
-  <div class="controls">
-    <div class="section-label">Mood</div>
+  <div class="settings-section">
+    <div class="controls">
+    <div class="section-label">Mood Presets</div>
     <div class="control-row">
       <button class="btn btn-mood active" data-mood="DEFAULT">Default</button>
       <button class="btn btn-mood" data-mood="HAPPY">Happy</button>
@@ -180,6 +285,122 @@
       <button class="btn btn-mood" data-mood="IRRITATED">Irri</button>
       <button class="btn btn-mood" data-mood="SAD">Sad</button>
       <button class="btn btn-mood" data-mood="HAPPYBLUSH">Blush</button>
+      <button class="btn btn-mood" data-mood="FOCUSED">Focus</button>
+      <button class="btn btn-mood" data-mood="EFFORT">Effort</button>
+      <button class="btn btn-mood" data-mood="SURPRISED">Surprised</button>
+      <button class="btn btn-mood" data-mood="EXCITED">Excited</button>
+      <button class="btn btn-mood" data-mood="DETERMINED">Determined</button>
+    </div>
+
+    <div class="section-label">Eye Shape</div>
+    <div class="control-row">
+      <select class="control-select" id="eye-shape">
+        <option value="ellipse">Ellipse</option>
+        <option value="circle">Circle</option>
+        <option value="heart">Heart</option>
+        <option value="star">Star</option>
+        <option value="diamond">Diamond</option>
+        <option value="square">Square</option>
+        <option value="rectangle">Rectangle</option>
+      </select>
+    </div>
+
+    <div class="section-label">Eye Size</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>Left Eye Width: <span id="left-width-value">1.0</span></label>
+        <input type="range" id="left-eye-width" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+      </div>
+      <div class="slider-item">
+        <label>Left Eye Height: <span id="left-height-value">1.0</span></label>
+        <input type="range" id="left-eye-height" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+      </div>
+      <div class="slider-item">
+        <label>Right Eye Width: <span id="right-width-value">1.0</span></label>
+        <input type="range" id="right-eye-width" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+      </div>
+      <div class="slider-item">
+        <label>Right Eye Height: <span id="right-height-value">1.0</span></label>
+        <input type="range" id="right-eye-height" min="0.3" max="2.0" step="0.05" value="1.0" class="slider">
+      </div>
+      <div class="slider-item">
+        <label>Border Radius: <span id="radius-value">1.0</span></label>
+        <input type="range" id="border-radius" min="0.1" max="2.0" step="0.05" value="1.0" class="slider">
+      </div>
+      <div class="slider-item">
+        <label>Rotation: <span id="rotation-value">0</span>°</label>
+        <input type="range" id="eye-rotation" min="-15" max="15" step="1" value="0" class="slider">
+      </div>
+    </div>
+
+    <div class="section-label">Background</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>BG Color 1:</label>
+        <input type="color" id="bg-color-1" value="#0a0a0a" class="color-picker">
+      </div>
+      <div class="slider-item">
+        <label>BG Color 2:</label>
+        <input type="color" id="bg-color-2" value="#0a0a0a" class="color-picker">
+      </div>
+    </div>
+
+    <div class="section-label">Glow Effect</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>Glow Color:</label>
+        <input type="color" id="glow-color" value="#ffffff" class="color-picker">
+      </div>
+      <div class="slider-item">
+        <label>Glow Intensity: <span id="glow-intensity-value">0</span></label>
+        <input type="range" id="glow-intensity" min="0" max="1.5" step="0.1" value="0" class="slider">
+      </div>
+      <div class="slider-item">
+        <label>Glow Pattern:</label>
+        <select class="control-select" id="glow-pattern">
+          <option value="none">None</option>
+          <option value="radial">Radial</option>
+          <option value="pulse">Pulse</option>
+          <option value="flicker">Flicker</option>
+          <option value="stable">Stable</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-label">Border Glow</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>Border Color:</label>
+        <input type="color" id="border-color" value="#ffffff" class="color-picker">
+      </div>
+      <div class="slider-item">
+        <label>Border Intensity: <span id="border-intensity-value">0</span></label>
+        <input type="range" id="border-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
+      </div>
+    </div>
+
+    <div class="section-label">Scanline</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>Scanline Color:</label>
+        <input type="color" id="scanline-color" value="#ffffff" class="color-picker">
+      </div>
+      <div class="slider-item">
+        <label>Scanline Intensity: <span id="scanline-intensity-value">0</span></label>
+        <input type="range" id="scanline-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
+      </div>
+    </div>
+
+    <div class="section-label">Ripple</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>Ripple Color:</label>
+        <input type="color" id="ripple-color" value="#ffffff" class="color-picker">
+      </div>
+      <div class="slider-item">
+        <label>Ripple Intensity: <span id="ripple-intensity-value">0</span></label>
+        <input type="range" id="ripple-intensity" min="0" max="1.0" step="0.1" value="0" class="slider">
+      </div>
     </div>
 
     <div class="section-label">Position</div>
@@ -207,6 +428,8 @@
       <button class="btn btn-anim" id="btn-laugh">Laugh</button>
       <button class="btn btn-anim" id="btn-confused">Confused</button>
       <button class="btn btn-anim" id="btn-flicker">Flicker</button>
+      <button class="btn btn-anim" id="btn-thinking">Thinking</button>
+      <button class="btn btn-anim" id="btn-speaking">Speaking</button>
     </div>
 
     <div class="section-label">Colors</div>
@@ -226,9 +449,8 @@
       <button class="btn" id="btn-autoblink">Autoblink: ON</button>
       <button class="btn" id="btn-idle">Idle: ON</button>
     </div>
+    </div>
   </div>
-
-  <div class="status" id="fps">60 FPS</div>
 
   <script type="module" src="./src/main.js"></script>
 </body>

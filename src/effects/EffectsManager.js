@@ -56,19 +56,41 @@ export class EffectsManager {
   renderParticles() {
     for (const particle of this.particles) {
       this.ctx.save();
-      this.ctx.globalAlpha = particle.opacity;
-      this.ctx.fillStyle = particle.color;
-      this.ctx.shadowColor = particle.color;
-      this.ctx.shadowBlur = particle.glow || 0;
       
-      if (particle.type === 'circle') {
+      // 增强粒子亮度和光晕
+      const glowIntensity = particle.glow || 0;
+      this.ctx.shadowColor = `rgb(${particle.color})`;
+      this.ctx.shadowBlur = glowIntensity * particle.opacity;
+      
+      // 使用更高的不透明度
+      this.ctx.globalAlpha = Math.min(1, particle.opacity * 1.2);
+      
+      // 根据粒子类型设置颜色
+      if (particle.type === 'star') {
+        // 星星使用更亮的颜色
+        this.ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity})`;
+        this.ctx.strokeStyle = `rgba(255, 255, 255, ${particle.opacity * 0.8})`;
+        this.ctx.lineWidth = 1;
+        this.drawStar(particle.x, particle.y, particle.size, particle.points || 5);
+        this.ctx.stroke();
+      } else if (particle.type === 'heart') {
+        this.ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity})`;
+        this.drawHeart(particle.x, particle.y, particle.size);
+      } else {
+        // 圆形粒子
+        this.ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity})`;
         this.ctx.beginPath();
         this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         this.ctx.fill();
-      } else if (particle.type === 'star') {
-        this.drawStar(particle.x, particle.y, particle.size, particle.points || 5);
-      } else if (particle.type === 'heart') {
-        this.drawHeart(particle.x, particle.y, particle.size);
+        
+        // 添加内层高光
+        if (particle.size > 2) {
+          this.ctx.globalAlpha = particle.opacity * 0.5;
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity * 0.6})`;
+          this.ctx.beginPath();
+          this.ctx.arc(particle.x - particle.size * 0.3, particle.y - particle.size * 0.3, particle.size * 0.4, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
       }
       
       this.ctx.restore();
@@ -109,6 +131,8 @@ export class EffectsManager {
         this.renderBlurEffect(effect);
       } else if (effect.type === 'colorShift') {
         this.renderColorShiftEffect(effect);
+      } else if (effect.type === 'ripple') {
+        this.renderRippleEffect(effect);
       }
     }
   }
@@ -133,9 +157,26 @@ export class EffectsManager {
   }
 
   renderColorShiftEffect(effect) {
-    const overlayColor = `rgba(${effect.color}, ${effect.strength * 0.3 * (effect.life / effect.maxLife)})`;
-    this.ctx.fillStyle = overlayColor;
+    // 增强叠加层效果，使用混合模式
+    const alpha = effect.strength * 0.6 * (effect.life / effect.maxLife);
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = 'screen';
+    this.ctx.fillStyle = `rgba(${effect.color}, ${alpha})`;
     this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.restore();
+  }
+
+  renderRippleEffect(effect) {
+    const alpha = effect.strength * (effect.life / effect.maxLife);
+    const radius = effect.radius * (1 - effect.life / effect.maxLife);
+    
+    this.ctx.save();
+    this.ctx.strokeStyle = `rgba(${effect.color}, ${alpha})`;
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
+    this.ctx.stroke();
+    this.ctx.restore();
   }
 
   addParticle(options) {

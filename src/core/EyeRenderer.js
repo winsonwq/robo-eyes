@@ -1,3 +1,5 @@
+import { MoodDefinitions, EyeShapes } from './MoodSystem.js';
+
 export class EyeRenderer {
   constructor(canvas, options = {}) {
     this.canvas = canvas;
@@ -26,10 +28,16 @@ export class EyeRenderer {
     this.animLaughY = 0;
     this.animConfusedX = 0;
     this.animFlicker = 0;
-    this.curiosityEnabled = true; // 原版的 setCuriosity 功能
+    this.animThinking = false;
+    this.animSpeaking = false;
+    this.thinkingOffset = 0;
+    this.speakingPhase = 0;
+    this.speakingScale = 1;
+    this.curiosityEnabled = true;
+    this.moodDefinitions = MoodDefinitions;
+    this.customConfig = null; // 自定义配置
 
-    // Mood 定义：通过眼睛形状（高度、宽度、圆角、倾斜角度、位置偏移）来体现情绪
-    // 原版 RoboEyes 没有瞳孔，只有眼睛形状本身
+    // 保留旧的 moods 定义以兼容（将被移除）
     this.moods = {
       DEFAULT: { 
         eyeScaleY: 1.0, 
@@ -102,6 +110,46 @@ export class EyeRenderer {
         rotation: 0,
         verticalOffset: -3,   // 明显上移
         brightness: 1.15      // 更亮
+      },
+      FOCUSED: {
+        eyeScaleY: 0.85,      // 稍微变小，更集中
+        eyeScaleX: 0.9,       // 稍微变窄，内聚
+        borderRadiusScale: 0.9, // 稍微不圆
+        rotation: 0,
+        verticalOffset: 0,
+        brightness: 1.0
+      },
+      EFFORT: {
+        eyeScaleY: 0.5,       // 变窄，显示用力
+        eyeScaleX: 0.85,      // 更窄
+        borderRadiusScale: 0.6, // 更尖锐
+        rotation: -1,         // 稍微向下倾斜
+        verticalOffset: 1,    // 稍微下移
+        brightness: 0.95
+      },
+      SURPRISED: {
+        eyeScaleY: 1.2,       // 变大
+        eyeScaleX: 1.1,       // 更宽
+        borderRadiusScale: 1.3, // 更圆
+        rotation: 0,
+        verticalOffset: -2,   // 稍微上移
+        brightness: 1.1
+      },
+      EXCITED: {
+        eyeScaleY: 1.1,       // 变大
+        eyeScaleX: 1.2,       // 更宽
+        borderRadiusScale: 1.4, // 很圆
+        rotation: 0,
+        verticalOffset: -2,   // 稍微上移
+        brightness: 1.2       // 更亮
+      },
+      DETERMINED: {
+        eyeScaleY: 0.8,       // 稍微变小
+        eyeScaleX: 0.9,       // 稍微变窄
+        borderRadiusScale: 0.7, // 更锐利
+        rotation: 0,
+        verticalOffset: 0,
+        brightness: 1.05      // 稍微更亮
       }
     };
     
@@ -126,6 +174,36 @@ export class EyeRenderer {
 
   setMood(mood) {
     this.currentMood = mood;
+  }
+
+  setCustomEyeConfig(config) {
+    // 存储自定义配置
+    this.customConfig = config;
+  }
+
+  getCurrentEyeConfig(isLeft) {
+    // 如果有自定义配置，使用自定义配置；否则使用 mood 定义
+    if (this.customConfig) {
+      const eyeConfig = isLeft ? this.customConfig.leftEye : this.customConfig.rightEye;
+      return {
+        shape: this.customConfig.shape,
+        scaleX: eyeConfig.scaleX,
+        scaleY: eyeConfig.scaleY,
+        borderRadius: this.customConfig.borderRadius,
+        rotation: this.customConfig.rotation
+      };
+    }
+    
+    // 否则使用 mood 定义
+    const moodDef = this.moodDefinitions[this.currentMood] || this.moodDefinitions.DEFAULT;
+    const eyeConfig = isLeft ? moodDef.leftEye : moodDef.rightEye;
+    return {
+      shape: moodDef.shape || EyeShapes.ELLIPSE,
+      scaleX: eyeConfig.scaleX,
+      scaleY: eyeConfig.scaleY,
+      borderRadius: moodDef.borderRadius || 1.0,
+      rotation: moodDef.rotation || 0
+    };
   }
 
   setEyeColor(color) {
@@ -196,9 +274,12 @@ export class EyeRenderer {
     this.curiosityEnabled = active;
   }
 
-  render() {
-    this.ctx.fillStyle = this.options.bgColor;
-    this.ctx.fillRect(0, 0, this.width, this.height);
+  render(renderBackground = false) {
+    // 如果需要渲染背景（默认模式），使用默认背景色
+    if (renderBackground) {
+      this.ctx.fillStyle = this.options.bgColor;
+      this.ctx.fillRect(0, 0, this.width, this.height);
+    }
 
     // 平滑更新眼睛位置（用于"看"不同方向）
     this.currentPosition.x += (this.targetPosition.x - this.currentPosition.x) * 0.25;
@@ -214,11 +295,11 @@ export class EyeRenderer {
   }
 
   drawEye(x, y, isLeft) {
-    const mood = this.moods[this.currentMood] || this.moods.DEFAULT;
+    // 获取当前眼睛配置（自定义或 mood 预设）
+    const config = this.getCurrentEyeConfig(isLeft);
     
-    // 根据 mood 调整眼睛尺寸
-    let eyeWidth = this.options.eyeWidth * mood.eyeScaleX;
-    let eyeHeight = this.options.eyeHeight * mood.eyeScaleY;
+    let eyeWidth = this.options.eyeWidth * config.scaleX;
+    let eyeHeight = this.options.eyeHeight * config.scaleY;
     
     // Curiosity 模式：当眼睛移动到极左或极右时，外侧眼的高度增加
     // 原版特性：setCuriosity() 开启时，外眼高度在移动到最左/最右时增加
@@ -235,8 +316,8 @@ export class EyeRenderer {
       }
     }
     
-    // 根据 mood 调整圆角
-    let baseRadius = this.options.borderRadius * mood.borderRadiusScale;
+    // 根据配置调整圆角
+    let baseRadius = this.options.borderRadius * config.borderRadius;
     const radius = Math.min(baseRadius, eyeWidth / 2, eyeHeight / 2);
 
     // 眨眼效果
@@ -249,11 +330,17 @@ export class EyeRenderer {
 
     eyeHeight *= blinkScale;
 
+    // Thinking 动画：眼睛左右移动
+    if (this.animThinking) {
+      this.thinkingOffset = Math.sin(Date.now() / 800) * 8;
+    } else {
+      this.thinkingOffset *= 0.9; // 平滑停止
+    }
+    
     // 眼睛位置偏移（用于"看"不同方向）
-    // 原版通过移动整个眼睛位置来实现"看"的效果
-    // 注意：看同一方向时，左右眼应该同向移动（不是相反）
-    const offsetX = this.currentPosition.x + this.animConfusedX + this.animFlicker;
-    const offsetY = this.currentPosition.y + this.animLaughY + (mood.verticalOffset || 0);
+    const moodDef = this.moodDefinitions[this.currentMood] || this.moodDefinitions.DEFAULT;
+    const offsetX = this.currentPosition.x + this.animConfusedX + this.animFlicker + this.thinkingOffset;
+    const offsetY = this.currentPosition.y + this.animLaughY + (moodDef.position?.y || 0);
     
     // 左右眼同向移动（看同一方向）
     const drawX = x + offsetX;
@@ -263,15 +350,15 @@ export class EyeRenderer {
     this.ctx.save();
     
     // 应用旋转（如果有）
-    if (mood.rotation) {
+    if (config.rotation) {
       this.ctx.translate(drawX + eyeWidth / 2, drawY);
-      this.ctx.rotate((mood.rotation * Math.PI) / 180);
+      this.ctx.rotate((config.rotation * Math.PI) / 180);
       this.ctx.translate(-(drawX + eyeWidth / 2), -drawY);
     }
 
     // 计算基础颜色和亮度
     const baseColor = this.options.eyeColor;
-    const brightness = mood.brightness || 1.0;
+    const brightness = moodDef.color?.brightness || 1.0; // 亮度仍从 mood 定义读取
     
     // 将颜色转换为 RGB 并应用亮度
     const rgb = this.hexToRgb(baseColor);
@@ -296,7 +383,10 @@ export class EyeRenderer {
     gradient.addColorStop(1, darkColor);
     
     this.ctx.fillStyle = gradient;
-    this.drawRoundedRect(eyeX, eyeY, eyeWidth, eyeHeight, radius);
+    
+    // 根据形状类型绘制不同的眼睛
+    const shape = config.shape || EyeShapes.ELLIPSE;
+    this.drawEyeShape(shape, eyeX, eyeY, eyeWidth, eyeHeight, radius);
 
     // 添加高光效果（眼睛上半部分的亮光）
     if (eyeHeight > 5 && !this.isClosed && blinkScale > 0.3) {
@@ -315,7 +405,10 @@ export class EyeRenderer {
       highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
       
       this.ctx.fillStyle = highlightGradient;
-      this.drawRoundedRect(highlightX, highlightY, highlightWidth, highlightHeight, highlightRadius);
+      // 高光使用圆形，适用于所有形状
+      this.ctx.beginPath();
+      this.ctx.arc(highlightX + highlightWidth / 2, highlightY + highlightHeight / 2, Math.min(highlightWidth, highlightHeight) / 2, 0, Math.PI * 2);
+      this.ctx.fill();
     }
 
     // 添加内阴影效果（增强立体感）
@@ -341,6 +434,75 @@ export class EyeRenderer {
       g: parseInt(result[2], 16),
       b: parseInt(result[3], 16)
     } : { r: 255, g: 255, b: 255 };
+  }
+
+  drawEyeShape(shape, x, y, width, height, radius) {
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    
+    this.ctx.beginPath();
+    
+    switch (shape) {
+      case EyeShapes.CIRCLE:
+        const circleRadius = Math.min(width, height) / 2;
+        this.ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
+        break;
+        
+      case EyeShapes.HEART:
+        this.drawHeartShape(centerX, centerY, width, height);
+        break;
+        
+      case EyeShapes.STAR:
+        this.drawStarShape(centerX, centerY, Math.min(width, height) / 2, 5);
+        break;
+        
+      case EyeShapes.DIAMOND:
+        this.drawDiamondShape(centerX, centerY, width, height);
+        break;
+        
+      case EyeShapes.SQUARE:
+        this.ctx.rect(x, y, width, height);
+        break;
+        
+      case EyeShapes.RECTANGLE:
+        this.ctx.rect(x, y, width, height);
+        break;
+        
+      case EyeShapes.ELLIPSE:
+      default:
+        this.drawRoundedRect(x, y, width, height, radius);
+        return; // 已经填充，直接返回
+    }
+    
+    this.ctx.closePath();
+    this.ctx.fill();
+  }
+
+  drawHeartShape(centerX, centerY, width, height) {
+    const size = Math.min(width, height) / 2;
+    this.ctx.moveTo(centerX, centerY + size * 0.3);
+    this.ctx.bezierCurveTo(centerX, centerY, centerX - size, centerY, centerX - size, centerY + size * 0.5);
+    this.ctx.bezierCurveTo(centerX - size, centerY + size * 1.2, centerX, centerY + size * 1.6, centerX, centerY + size * 2);
+    this.ctx.bezierCurveTo(centerX, centerY + size * 1.6, centerX + size, centerY + size * 1.2, centerX + size, centerY + size * 0.5);
+    this.ctx.bezierCurveTo(centerX + size, centerY, centerX, centerY, centerX, centerY + size * 0.3);
+  }
+
+  drawStarShape(centerX, centerY, radius, points) {
+    for (let i = 0; i < points * 2; i++) {
+      const r = i % 2 === 0 ? radius : radius / 2;
+      const angle = (i * Math.PI / points) - Math.PI / 2;
+      const px = centerX + Math.cos(angle) * r;
+      const py = centerY + Math.sin(angle) * r;
+      if (i === 0) this.ctx.moveTo(px, py);
+      else this.ctx.lineTo(px, py);
+    }
+  }
+
+  drawDiamondShape(centerX, centerY, width, height) {
+    this.ctx.moveTo(centerX, centerY - height / 2);
+    this.ctx.lineTo(centerX + width / 2, centerY);
+    this.ctx.lineTo(centerX, centerY + height / 2);
+    this.ctx.lineTo(centerX - width / 2, centerY);
   }
 
   drawRoundedRect(x, y, width, height, radius) {

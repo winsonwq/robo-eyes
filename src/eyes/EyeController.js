@@ -17,6 +17,8 @@ export class EyeController {
     this.animLaugh = false;
     this.animConfused = false;
     this.animFlicker = false;
+    this.animThinking = false;
+    this.animSpeaking = false;
     this.isClosed = false;
     this.autoblinker = true;
     this.idleMode = true;
@@ -46,16 +48,27 @@ export class EyeController {
       }
     });
 
-    this.animations.add('render', {
+    this.animations.add('update', {
       active: true,
       update: () => {
+        // 只更新动画状态，不渲染
         this.renderer.animLaughY = this.animLaugh ? Math.sin(Date.now() / 50) * 2 : 0;
         this.renderer.animConfusedX = this.animConfused ? Math.sin(Date.now() / 100) * 3 : 0;
         this.renderer.animFlicker = this.animFlicker ? (Math.random() - 0.5) * 5 : 0;
+        this.renderer.animThinking = this.animThinking;
+        this.renderer.animSpeaking = this.animSpeaking;
         this.renderer.isClosed = this.isClosed;
-        this.renderer.render();
       }
     });
+  }
+
+  render() {
+    // 不渲染背景，由 MoodEffects 处理
+    this.renderer.render(false);
+  }
+
+  setCustomEyeConfig(config) {
+    this.renderer.setCustomEyeConfig(config);
   }
 
   setMood(mood) {
@@ -118,6 +131,22 @@ export class EyeController {
 
   setHFlicker(active, amplitude = 5) {
     this.animFlicker = active;
+  }
+
+  anim_thinking() {
+    this.animThinking = true;
+  }
+
+  anim_thinkingStop() {
+    this.animThinking = false;
+  }
+
+  anim_speaking() {
+    this.animSpeaking = true;
+  }
+
+  anim_speakingStop() {
+    this.animSpeaking = false;
   }
 
   setAutoblinker(active, interval = 3, variation = 2) {
